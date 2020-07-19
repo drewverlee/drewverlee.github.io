@@ -7,11 +7,24 @@
     <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
     <!-- Modified to fit Cryogen.-->
     <meta charset="UTF-8">
-    <title>The Artificery</title>
+    <title>The Artificery: RDD with shadow cljs, deps, emacs and cider</title>
     
-    <meta name="description" content="A blog about Software Development.">
-    <meta name="keywords" content="">
-    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,cider,Clojure,deps,shadow-cljs,Behavrioral,Datomic-Cloud,Design Pattern,Java,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="MotivationRepl driven development (RDD) is a powerful tool and can even enhance other feedback mechanisms such as testing.
+One of the challenges of RDD is that you need to leave development options up to the developer. This means
+that configuration is often spread out on a devs computer and spans multiple files, environment variables
+etc. Simple put, There are a lot of options for RDD in clojure and in this blog post just be highlighting one example.">
+
+<meta property="og:description" content="MotivationRepl driven development (RDD) is a powerful tool and can even enhance other feedback mechanisms such as testing.
+One of the challenges of RDD is that you need to leave development options up to the developer. This means
+that configuration is often spread out on a devs computer and spans multiple files, environment variables
+etc. Simple put, There are a lot of options for RDD in clojure and in this blog post just be highlighting one example.">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-7-19-minimal-shadow-cljs-with-deps-dev-setup" />
+<meta property="og:title" content="RDD with shadow cljs, deps, emacs and cider" />
+<meta property="og:type" content="article" />
+
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
@@ -44,7 +57,7 @@
             <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
         </div>
         <ul class="menu">
-            <li  class="active" ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Home" href="/">Home</a></li>
             <li ><a title="Archives" href="/archives">Archives</a></li>
             
             <li ><a title="Tags" href="/tags">Tags</a></li>
@@ -158,14 +171,29 @@ where you can call the shadow clojure functions to start and stop the server.</p
 
 <br/>
 
-    
-
     <div id="prev-next">
         
         
-        <a class="button right" href="/posts-output/2020-6-8-learn-datomic-part-4">Learn Datomic - part 4 &raquo;</a>
+        <a class="right button" href="/posts-output/2020-6-8-learn-datomic-part-4">Learn Datomic - part 4 &raquo;</a>
         
     </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2020-7-19-minimal-shadow-cljs-with-deps-dev-setup";
+            this.page.identifier = "RDD with shadow cljs, deps, emacs and cider";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
 </div>
 
 <hr/>
