@@ -7,18 +7,16 @@
     <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
     <!-- Modified to fit Cryogen.-->
     <meta charset="UTF-8">
-    <title>The Artificery: The Rest api </title>
+    <title>The Artificery: Considering query alternatives to the CommonURLParameters Language</title>
     
-<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,cider,Clojure,datalog,deps,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,LetsLearn,Structural,Sente,cider,Clojure,datalog,deps,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
 
-<meta name="description" content="IntroductionThe REST API transition from Resource to Resource via links isn&#39;t a rich enough model to capture
-the range of useful interactions people want.">
+<meta name="description" content="Introduction">
 
-<meta property="og:description" content="IntroductionThe REST API transition from Resource to Resource via links isn&#39;t a rich enough model to capture
-the range of useful interactions people want.">
+<meta property="og:description" content="Introduction">
 
 <meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-8-17-uri-parameters-to-datalog" />
-<meta property="og:title" content="The Rest api " />
+<meta property="og:title" content="Considering query alternatives to the CommonURLParameters Language" />
 <meta property="og:type" content="article" />
 
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -85,28 +83,18 @@ the range of useful interactions people want.">
         <strong>August 17, 2020</strong>
         
     </div>
-    <h1>The Rest api </h1>
+    <h1>Considering query alternatives to the CommonURLParameters Language</h1>
 </div>
 <div>
     
-    <h2 id="introduction">Introduction</h2><p>The REST API transition from Resource to Resource via links isn't a rich enough model to capture
-the range of useful interactions people want.</p><p>The problem isn't what REST can express given infinite resources and no consideration for the user experience, it's that
-the model is too ridged to be useful given what people want.</p><h2 id="introduction-1">Introduction</h2><img src="/img/sp.png" /><p>The above is an example program written in what i'll be calling the CommonUrlParmeters Language (CUP).
+    <h2 id="introduction">Introduction</h2><img src="/img/sp.png" /><p>The above is an example program written in what i'll be calling the CommonUrlParmeters Language (CUP).
 which belongs in a family of UrlParameters languages. If this example looks like
 a typically browser client URL your correct. The purpose of this post is to explore what
-falls out of thinking of the url as a programming language.</p><p>First lets have a brief refresher of how HTTP communicate. The
-basic concept is that a client (e.g web browser) will make a HTTP REQUEST (get,
-post, etc..) to a REST API Server. In the case of an HTTP GET request the
-convention is to send the same url the browser application uses for routing. The
-result is that navigating the routes of a web application should feel like
-moving around a file system and the web application loads and filters the data
-(the file) from the server to populate the client.</p><p>Intuitively, this model should give you a sense of the limitations.</p><blockquote><p>The developer was discouraged to hear that the business was storing all there data on a file system.</p></blockquote><h2 id="history">History</h2><p>A brief look into the history of the url tells us that:</p><ol><li>Path parameters were based off the unix file system.</li><li>Query parameters were originally used to search index's and were later repurposed for webforms.</li></ol><p>Given the historical drive to evolve the url was driving by increasing communication demands, it should be natural
+falls out of thinking of the url as a programming language.</p><h2 id="history">History</h2><p>A brief look into the history of the url tells us that:</p><ol><li>Path parameters were based off the unix file system.</li><li>Query parameters were originally used to search index's and were later repurposed for webforms.</li></ol><p>Given the historical drive to evolve the url was driving by increasing communication demands, it should be natural
 to consider what the current demands are and if the CUP language or any langauge in the Url Parameters family is a good fit.</p><h2 id="where-are-we-now">Where are we now?</h2><p>If we consult an mozzila, an industry leader on the web were told that</p><blockquote><p>A URL is nothing more than the address of a given unique resource on the Web
-In theory, each valid URL points to a unique resource</p></blockquote><p>The current internet landscape is massive and the competition is greater then ever.
-This is pushing our Url Parameters langauges.</p><p>However url language specs can grow exponentially, check out this example from
-a healthcare specification called fhir:</p><h3 id="composite-url"><a href="https://www.hl7.org/fhir/search.html#combining">composite URL</a></h3><blockquote><p>GET [base]/DiagnosticReport?result.code-value-quantity=http://loinc.org|2823-3$gt5.4|http://unitsofmeasure.org|mmol/L</p></blockquote><h2 id="on-naming">On Naming</h2><p>The name "url parameters" was decided upon because my target audience already associates the term
-with path parameters and given the query parameters are part of the URL it's not too much of a leap.</p><p>Ultimately, the name needs to make sense just enough to center the idea close enough in your mind to make it not hard to
-understand the relationship.</p><p>Another avenue would be to refer to this as REST.</p><h2 id="understanding-where-we-are-now">Understanding where we are now.</h2><p>I find i learn best by connecting new ideas to existing ones that i have a stronger mental model. To that end,
+In theory, each valid URL points to a unique resource</p></blockquote><p>The current internet landscape is massive and the competition is greater then ever,
+This has been pushing the people to express arbitrarily complex functionality in
+these languages. Consider this healthcare specification called fhir:</p><h3 id="composite-url"><a href="https://www.hl7.org/fhir/search.html#combining">composite URL</a></h3><blockquote><p>GET [base]/DiagnosticReport?result.code-value-quantity=http://loinc.org|2823-3$gt5.4|http://unitsofmeasure.org|mmol/L</p></blockquote><h2 id="understanding-where-we-are-now">Understanding where we are now.</h2><p>I find i learn best by connecting new ideas to existing ones that i have a stronger mental model. To that end,
 I put forth that the logic a back-end server employs to turn url parameters into
 executable code is the same process that a compiler for a traditional
 programming language takes:</p><ol><li>Tokenization : Extracting the parameters and values from the url parameters.</li><li>Lexical analysis : Defining the relationship between the  path parameters and query parameters.</li><li>Emitter: Turning the relationship into executable code.</li></ol><p>To demonstrate this lets write a compiler for a language within the
@@ -121,8 +109,7 @@ ATTRIBUTE = WORD
 VALUE = WORD
 &lt;WORD&gt; = #'[a-zA-Z]+'
 </code></pre><p>If we walk our parse tree we see that we have a query made up of clauses which are made of our attribute value pairs:</p><img src="/img/ssp.png" /><p>The final step is to emit/transform our tree into something which can be executed. In our case,
-that means transforming it to a <a href="https://docs.datomic.com/on-prem/clojure/index.html#datomic.api/query">datomic query map</a> which is the shape
-you pass to the datomic query function. The simplest way is to walk up the tree and transform each type.</p><pre><code class="clojure">{:ATTRIBUTE keyword
+that means transforming it to a <a href="https://docs.datomic.com/on-prem/clojure/index.html#datomic.api/query">datomic query map</a> which is the shape you pass to the datomic query function. The simplest way is to walk up the tree and transform each type.</p><pre><code class="clojure">{:ATTRIBUTE keyword
  :VALUE     identity
  :CLAUSE    (fn [a v] {:entity '?e :attribute a :value-input v})
  :QUERY     (fn [&amp; c]
@@ -263,6 +250,8 @@ https://restfulapi.net/</li></ol>
 
     <div id="prev-next">
         
+        <a class="button" href="/posts-output/2020-12-1-learn-sente">&laquo; Lets Learn Sente</a>
+        
         
         <a class="right button" href="/posts-output/2020-7-19-minimal-shadow-cljs-with-deps-dev-setup">RDD with shadow cljs, deps, emacs and cider &raquo;</a>
         
@@ -273,7 +262,7 @@ https://restfulapi.net/</li></ol>
     <script type="text/javascript">
         var disqus_config = function () {
             this.page.url = "https://drewverlee.github.io/posts-output/2020-8-17-uri-parameters-to-datalog";
-            this.page.identifier = "The Rest api ";
+            this.page.identifier = "Considering query alternatives to the CommonURLParameters Language";
         };
         (function() {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
