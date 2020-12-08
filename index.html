@@ -73,23 +73,104 @@
 <div id="post">
     <div class="post-header">
     <div id="post-meta" class="row">
-        <strong>December 8, 2020</strong>
+        <strong>August 17, 2020</strong>
         
     </div>
-    <h1>Rhythm and reason</h1>
+    <h1>Lets Learn Sente and its friends!</h1>
 </div>
 <div>
     
-    <blockquote><p>“It is a word. Words are pale shadows of forgotten names. As names have power, words have power. Words can light fires in the minds of men. Words can wring tears from the hardest hearts. There are seven words that will make a person love you. There are ten words that will break a strong man’s will. But a word is nothing but a painting of a fire. A name is the fire itself.”</p></blockquote><h2 id="rhythm-words-can-wring-tears-from-the-hardest-hearts">Rhythm: Words can wring tears from the hardest hearts</h2><p><em>My heart aches</em></p><blockquote><p>After the battle was finished and the enemy was set beyond the doors of stone, survivors found Lanre’s body, cold and lifeless near the beast he had slain. Word of Lanre’s death spread quickly, covering the field like a blanket of despair. They had won the battle and turned the tide of the war, but each of them felt cold inside. The small flame of hope that each of them cherished began to flicker and fade. Their hopes had hung on Lanre, and Lanre was dead.</p></blockquote><p><em>the truth burns in me like a fire</em></p><blockquote><p>In the midst of silence Lyra stood by Lanre’s body and spoke his name. Her voice was a commandment. Her voice was steel and stone. Her voice told him to live again. But Lanre lay motionless and dead.</p></blockquote><p><em>i cant breath</em></p><blockquote><p>In the midst of fear Lyra knelt by Lanre’s body and breathed his name. Her voice was a beckoning. Her voice was love and longing. Her voice called him to live again. But Lanre lay cold and dead.</p></blockquote><p><em>I scream</em></p><blockquote><p>In the midst of despair Lyra fell across Lanre’s body and wept his name. Her voice was a whisper. Her voice was echo and emptiness. Her voice begged him to live again. But Lanre lay breathless and dead.</p></blockquote><p><em>But I do not look away</em></p><blockquote><p>Lanre was dead. Lyra wept brokenly and touched his face with trembling hands. All around men turned their heads, because the bloody field was less horrible to look upon than Lyra’s grief.</p></blockquote><p><em>Lyra who was, and is and ever will be. My heart. My chaos.</em></p><h2 id="reason-the-turning-of-the-world">Reason: The turning of the world</h2><p>Lyra was and is a powerful namer, but she never brought Lanre back. Using her Alar she split her mind into 7 pieces and
-transferred her will into 7 people including lanre and herself.</p><p>Together, as seven, she commanded some of the many names (signs) of death, and so she to halted it. But Lanre was dead, she could halt decay, but not restore it.
-She locked her true nature along with selitos, lanre and alphe beyond the doors of stone. She must convince every next generation to do the same.</p><h2 id="rhythm--but-a-word-is-nothing-but-a-painting-of-a-fire-a-name-is-the-fire-itself">Rhythm:  But a word is nothing but a painting of a fire. A name is the fire itself</h2><img src="/img/kkc-6.png" /><h2 id="reason">Reason:</h2><p>The ordered choas of the word is broken by mankins power of narrative. We must hold to and opposite ideals in our minds
-It is and we are.</p><p>Many of you are aware of one side of being. The four corners. Order. Structure. Its comfortable to talk about, to share, to touch.
-To contrast, Chaos binds and breaks. It cannot be given, it must be taken. This is why the <a href="https://www.reddit.com/r/KingkillerChronicle/comments/k7xfvv/what_a_plant_knows/">nature</a> of Faeriniel eludes so many.</p><p>A fern has a cyclical growth and rebirth cycle. It grows new foliage and lets the old die so it can learn and evolve. Haliax doesn't represent
-order or chaos, light or darkness. He represents a breaking of the cycle.</p><p>The choas that is necessary to break in order to build anew. <em>our anger</em>. You cannot be woefully ignorant of your true
-nature.</p><p><em>Look ..LOOK DAMN YOU</em>
-Look around you, the world is fire. Our fire. Our Laws. Our Choice.</p><blockquote><p>Seven words that will make a person love you</p></blockquote><p>I forgive you.</p><blockquote><p>There are ten words that will break a strong man’s will.</p></blockquote><p>We must find the ten words that will break a man's will. So we can build are selves anew. I don't know what they are, but i suspect will find the
-on the road to Tinue.</p><h2 id="credit-where-credit-is-due">Credit where credit is due</h2><ul><li>My friend _____ who saved me from the bear and reminded me we need order.</li><li>My father, brother and mother for listening.</li><li>My wife for being.</li><li>My dog for never letting me forget to play.</li><li>My wife who smiles even when times are hard.</li></ul><p>Finally, thank you to Patrick Rothfuss.
-For giving me the greatest story ever told.</p><p>I can see the dawn coming. I can finally breath again.</p><h1 id="notes-many-more-coming">Notes (many more coming!)</h1><p>http://blog.alex-turok.com/2013/08/clojure-barnsley-fern.html</p><blockquote><p>Sincerely speaking, I can’t say what makes me fear the task of creating such a simple thing.</p></blockquote>
+    <img src="/img/TODO-sente-fullpicture.png" /><h2 id="introduction">Introduction</h2><p>This will be the first in a series i'll be tagging "LetsLearn". Where i'll
+be explaining the goal and demonstrating how to use a clojure library.</p><p>The first library were going to look at is <a href="https://github.com/ptaoussanis/sente">Sente</a>.
+but were also going to bounce around, why? because its really hard to understand clojure libraries
+in isolation. It's easier to dance around the landscape then put on blinders.</p><h2 id="goal">Goal</h2><p>Depending on your background, there are multiple ways to state the goal. I'm going to state the goal in several ways
+and then the rest of this post i'll explain how to understand these goals. Dont worry if you dont understand them now.</p><ul><li>Sente is full duplex communication between a server and client using <em>todo</em></li></ul><p>The README states</p><blockquote><p>Sente is a small client+server library that makes it easy to build reliable, high-performance realtime web applications with Clojure + ClojureScript.</p></blockquote><img src="/img/sente-bf.png" /><p>So it spans both frontend and backend.</p><p>You can see this play out in a minimal clojure framework called <a href="https://github.com/jacobobryant/biff/search?q=sente">biff</a></p><blockquote><p>Or: We don't need no Socket.IO</p></blockquote><p>So Sente is does the same thing as Socket.IO. If we consult an <a href="https://www.ably.io/topic/socketio">overview</a> of Socket.IO.</p><p>We learn socket.IO relies on WebSockets. Which makes sense because Sente does as well.</p><blockquote><p>Or: core.async + Ajax + WebSockets = The Shiznizzle</p></blockquote><p>it would be accurate to say Sente = core.async + ajax + websockets. But if your not familiar
+with those technologies that wont tell you anything. So lets break them down.</p><img src="/img/sente-async-photo.png" /><h1 id="websockets">WebSockets</h1><p>Websocket =&gt; full duplex TCP communication protocol.
+Put another way, websockets allow for two way communication between a server and a browser application.</p><p>This is done by establishing a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers">websocket handshake</a></p><p>In the context of Sente, we would say sente uses websockets to help you tell your server how to send messages (e.g edn) to your frontend javascript application.</p><p>I forked <a href="TODO">Sente</a> for educational purposes, you can see that it contains Java-WebSockets:</p><pre><code class="clojure">{:deps
+ {org.clojure/core.async            {:mvn/version "1.3.610"}
+  com.taoensso/encore               {:mvn/version "3.1.0"}
+  org.java-websocket/Java-WebSocket {:mvn/version "1.5.1"} &lt;=====
+  org.clojure/tools.reader          {:mvn/version "1.3.3"}
+  com.taoensso/timbre               {:mvn/version "4.10.0"}}}
+</code></pre><p>Looking at the dependencies is also a good way do a meta analysis on a library. A library with a lot of unexpected dependencies might require more attention. The only dep i personally dont recognize is <a href="https://github.com/ptaoussanis/encore/blob/master/src/taoensso/encore.cljc">encore</a> which is the authors personal library of helper methods. Meaning, they extended Clojure with some idioms they find helpful:</p><p>For example, they modified <code>if-let</code> so it can take multiple bindings, which it achieves by recursively
+calling itself.</p><pre><code class="klipse-cljs nohighlight">
+(ns foo.core$macros)
+(defmacro if-let
+  "Like `core/if-let` but can bind multiple values for `then` iff all tests
+  are truthy, supports internal unconditional `:let`s."
+  {:style/indent 1}
+  ([bindings then     ] `(if-let ~bindings ~then nil))
+  ([bindings then else]
+   (let [s (seq bindings)]
+     (if s ; (if-let [] true false) =&gt; true
+       (let [[b1 b2 &amp; bnext] s]
+         (if (= b1 :let)
+           `(let      ~b2  (if-let ~(vec bnext) ~then ~else))
+           `(let [b2# ~b2]
+              (if b2#
+                (let [~b1 b2#]
+                  (if-let ~(vec bnext) ~then ~else))
+                ~else))))
+       then))))
+       
+(foo.core/if-let [x 2 y 2] (+ x y) "fail")
+</code></pre><p>But back to websockets! It doesn't look sente is going to make us think in websockets directly, i'm guessing will be using core async for that.
+Put another way, core async will abstract <em>over</em> websockets. Will get a bit into core async in a moment. Take a moment and consider websockets from a
+security perspective. Knowing how to break something will give you an better understanding of what it is. The key takeaway from the literature is that the
+websocket protocol doesn't check the origin header in the clients handshake request.</p><p>To rephrase that, and give more context, it means that when the server <em>served</em> up the webapplication it set a policy that this webapplication would only
+talk to it. the <em>same origin policy</em>, this is controlled at layer outside the applications control, by the browser.</p><img src="/img/sente-same-origin.png" /><p>Often times your security model needs to work around that anyway. e.g your
+client has to talk to two domains. Well we don't have that, so what do we have
+for security? Well Sente doesn't need to care, but the author left us a hint:</p><pre><code>    [ring.middleware.anti-forgery :refer [wrap-anti-forgery]] ; &lt;--- Recommended
+</code></pre><p>Middleware is called as such because its sits in the middle of the java servlet api which handles the HTTP protocol
+and things which <em>handle</em> GET and POST requets:</p><img src="/img/sente-handler.png" /><p>This is useful because it lets the clojure community share common HTTP functions that effect incoming responses
+and outgoing requests. As were about to see. If we jump to that <a href="https://github.com/ring-clojure/ring-anti-forgery">library</a> then we see</p><blockquote><p>Ring middleware that prevents CSRF attacks. By default this uses the synchronizer token pattern.</p></blockquote><p>The premise here is that the server gives the client a key and its verified in every request.</p><img src="/img/sente-sync-pattern-TODO.png" /><p>And would look like</p><pre><code class="html">&lt;input name ="csrf" value="aldkjflakjdbwoijpokajsdf" &lt;/&gt;
+</code></pre><p>so if we look at this library we should expect to see it generating a random unique sequence it can check.</p><p>we see tests for creating an <a href="https://github.com/ring-clojure/ring-anti-forgery/blob/e248f9f5b0cb593bae998ed3fa0d538f6f651ad0/test/ring/util/test/anti_forgery.clj#L6">input field</a></p><pre><code>(deftest anti-forgery-field-test
+  (binding [*anti-forgery-token* "abc"]
+    (is (= (anti-forgery-field)
+           (str "&lt;input id=\"__anti-forgery-token\" name=\"__anti-forgery-token\""
+                " type=\"hidden\" value=\"abc\" /&gt;")))))
+</code></pre><p>but will want to be sending this as part of our handshake.
+From the readme</p><blockquote><p>The middleware also looks for the token in the X-CSRF-Token and X-XSRF-Token header fields, which are commonly used in AJAX requests.</p></blockquote><p>and we see also see the <code>synchronizer pattern code</code></p><pre><code class="clojure">(deftype SessionStrategy []
+  strategy/Strategy
+  (get-token [this request]
+    (or (session-token request)
+        (random/base64 60)))
+
+  (valid-token? [_ request token]
+    (when-let [stored-token (session-token request)]
+      (crypto/eq? token stored-token)))
+
+  (write-token [this request response token]
+    (let [old-token (session-token request)]
+      (if (= old-token token)
+        response
+        (-&gt; response
+            (assoc :session (:session response (:session request)))
+            (assoc-in
+              [:session :ring.middleware.anti-forgery/anti-forgery-token]
+              token))))))
+</code></pre><p>Lets do a quick check to see how unique and random it looks</p><pre><code class="clojure">(crypto.random/base64 60)
+;; =&gt; "Xh2GxMJJw4gMAovSLZRCSUcyKJuTVwcbx24GYI2YWD35TGBLHCpn7GBCDzw6K0B86pxUKbict90PiCBQ"
+
+;; would check uniqueness
+(let [n 10000]
+  (= n (count (set (take n (repeatedly #(crypto.random/base64 60) ))))))
+;; =&gt; true
+</code></pre><h2 id="comparing">Comparing</h2><p>The docs are nice enough to point out two alternatives</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/LetsLearn">LetsLearn</a>
+    
+    <a href="/tags-output/Sente">Sente</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
 </div>
 
 <br/>
@@ -99,7 +180,7 @@ For giving me the greatest story ever told.</p><p>I can see the dawn coming. I c
     <div id="prev-next">
         
         
-        <a class="button right" href="/posts-output/2020-12-1-learn-sente">Lets Learn Sente and its friends! &raquo;</a>
+        <a class="button right" href="/posts-output/2020-8-17-uri-parameters-to-datalog">Considering alternatives to the CommonURLParameters Language &raquo;</a>
         
     </div>
 </div>
@@ -124,7 +205,7 @@ window.klipse_settings = {
   }
 };
 </script>
-<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
 
 </body>
 </html>
