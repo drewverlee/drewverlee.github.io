@@ -7,16 +7,16 @@
     <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
     <!-- Modified to fit Cryogen.-->
     <meta charset="UTF-8">
-    <title>The Artificery: Factory Method Pattern</title>
+    <title>The Artificery: The Waystone Brothers</title>
     
 <meta name="keywords" content="Application,Creational,Spacemacs,Software,Fantasy,tutorial,AWS,LetsLearn,Structural,KingKiller,Sente,cider,Clojure,datalog,deps,Kingkiller,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
 
-<meta name="description" content="###IntentThe GOF pattern says the intent is:">
+<meta name="description" content="IntroThis is part of warrens series and follows us trying on Kvoth&#39;s Kote">
 
-<meta property="og:description" content="###IntentThe GOF pattern says the intent is:">
+<meta property="og:description" content="IntroThis is part of warrens series and follows us trying on Kvoth&#39;s Kote">
 
-<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-5-08-factory-pattern" />
-<meta property="og:title" content="Factory Method Pattern" />
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/mission" />
+<meta property="og:title" content="The Waystone Brothers" />
 <meta property="og:type" content="article" />
 
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -81,68 +81,26 @@
 <div id="post">
     <div class="post-header">
     <div id="post-meta" class="row">
-        <strong>May 8, 2017</strong>
+        <strong>May 9, 2017</strong>
         
     </div>
-    <h1>Factory Method Pattern</h1>
+    <h1>The Waystone Brothers</h1>
 </div>
 <div>
     
-    <p>###Intent</p><p>The GOF pattern says the intent is:</p><blockquote><p>Define an interface for creating an object, but let subclasses decide which
-class to instantiate. Factory Method lets a class defer instantiation to
-subclasses.</p></blockquote><ul><li><p>Here is a fairly human consumable <a href="http://alvinalexander.com/java/java-factory-pattern-example">example</a>.</p></li><li><p>Here is an interesting  post on this pattern in <a href="http://blog.wagjo.com/factory.html">clojure</a>.
-I say interesting because i can't tell if this is over engineered.</p></li></ul><p>The premises is you don't want your client to be found to a certain set of functionality.</p><p>Maybe it would be best if we looked at their example code?</p><pre><code>Product* MyCreator::Create (Productld id) {
-    if (id == YOURS)  return new MyProduct;
-    if (id == MINE)   return new YourProduct;
-        // N.B.: switched YOURS and MINE
-
-    if (id == THEIRS) return new TheirProduct;
-
-    return Creator::Create(id); // called if all others fail
-}
-</code></pre><p>Right, so its a switch statement.</p><h3 id="clojure-implementation">Clojure implementation</h3><p>I'm not sure what to do here. It seems like the problem is that you have some
-data and you want the code to handle it no matter what the type. Look at the
-example code above, <code>id == Yours</code> is akin to a type check. In Clojure we have a method
-for dispatching to functionality based on a function that will do the same</p><p>the difference is that instead of fetching the class, i'm going to just perform
-the action we need to get the job done.</p><pre><code class="klipse-cljs nohighlight">(defmulti draw (fn [{:keys [shape]}] shape))
-
-(defmethod draw :circle 
-   [{:keys [shape]}] (str "drawing a  big " shape))
-
-(draw {:shape :circle})
-</code></pre><p>Things change and you want another shape?</p><pre><code class="klipse-cljs nohighlight">
-(defmethod draw :square
-   [{:keys [shape]}] (str "drawing a  tiny " shape))
-
-(draw {:shape :square})
-</code></pre><p>However what type a  multimethod is dispatched is determined at compile time,
-often we want to dispatch on some run time value. In which case we can juse use any number
-of conditional control structures <code>if cond when</code></p><p>Here is a quick example.</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
-  (cond
-    (odd? n) "odd"
-    (zero? n) "zero"))
-</code></pre><p>Then try it out:</p><pre><code class="klipse-cljs nohighlight">(describe-number 5)
-</code></pre><p>I talk the various tradeoffs of chaining together functions
-on the Chain of Responsibility post.</p><h3 id="summery">Summery</h3><p>The factory pattern is about building up an object based on some input.
-Objects are groups of functions. But in functional languages we don't group
-together functions in a class, we call them as needed on the data. The factory method
-seems to be a filler step between getting the data you need to the functions
-you want to call on it. We eliminated the filler with a multimethod.</p>
+    <h2 id="intro">Intro</h2><p>This is part of <a href="/posts-output/2021-1-15-bone-and-crystal">warrens series</a> and follows <a href="/posts-output/kote">us trying on Kvoth's Kote</a></p><h2 id="looking-for-sly-cat">Looking for sly cat...</h2><p>Two cloaked figures walk into a crowded Inn. One has his hood up. The others too clever eyes quickly take in the whole room. You would have to be seven kinds of drunk to not notice the clientele was different. The horns and tail on the waiter might be a hint. Or it could be the Minotaur smoking a long wooden pipe across from satyr. The newcomers don't warrant a glance as they casually weave their way to the bar where a young faen looks like her shifted ended 4 hours ago.</p><p>"what will it be then" her hands move from tap to mug and back with a motion so fluid it belonged on stage.</p><p>"Me and my partner Bast, were looking for someone." The rich dark voice of the hooded figure reaches just as far as the brightly colored bottles. The bartender doesn't say a word but a cup slips from her hand and shatters on the floor. "Mary, love, would you help with that?" Her voice is calm as river water but she darts a glance at the young man, then her eyes flit past the hood of the other, as if she knows what a look would entail.</p><p>"everyone's looking for someone love, w-who might this be" Her tone is friendly, but her eyes are thin and strained.</p><p>The shorter figure nudges Bast and he rolls his eyes. "Felurian... we're looking for m- the lady of the quiet" His face is sour, like someone just asked him to clean his room.</p><p>"why?" The question is a relex, like a gentle tap on the patellar tendon. Her hands are just circling the same glass with a rag, over and over. Over... and Over.</p><p>Bast grins. "Were on a mission from Aleph. We're getting the Troupe back together."</p><p>"A name might help.." As the words leave her lips she knows from her skin to her bones she could not have asked a worse question. Like a deer in an open field who hears the thunder and waits for the lighting.</p><p>The hood tilts upward as if the Inn ceiling is of no consequence and he is looking directly at the stars. Daring them to look back. "me?" The music is still playing in the background, conversations keep their beat. But there is a sudden silence that seems to cut through the room like a glass dagger. "You may have heard of me".</p><h2 id="magical-music">Magical Music</h2><p>Hows it going Imreeeee ?
+I can't hear you! I see we got a lot of fine looking lords and lovely ladies and the Eolian tonight.  Get your hands in the air. That's right, Kote got the Troupe back together and were on a mission from Aleph to <em>rock this house!</em></p><p>We got Denna on the Harp, shes out of boxes for tonight only. Can I get some love?</p><p><em>let the music hit you hard</em><em>Makes you say "Oh, my Tehlu"</em><em>Thank you for blessing me</em><em>With a mind to rhyme and two hyped wings</em></p><p>My homeboy, Bredon freestyle dancing.</p><p><em>Fresh new shaed and</em><em>You got it like that</em><em>Now you know you wanna dance</em><em>oh, move outta your Inn</em><em>And get a fea girl</em></p><p>Give it up for Cinder on the turn tables.</p><p><em>And catch this wind</em><em>While it's rolling</em><em>Hold on</em></p><p>Tehlu burning some mad beats on the Tabor.</p><p><em>Ring the bell, The king is dead, like a tree he fell</em><em>Break it down!</em><em>Stop Hammer time!</em></p><p>Felurian making love to the Sousaphone.</p><p><em>You can't touch this</em><em>You can't touch this</em><em>You can't touch this</em></p><p>My girl Auri tending those pipes.</p><p><em>with others making music</em>
+_They just don't hit?
+<em>I toured around the world</em><em>From earth to The sky</em><em>I just won't quit</em></p><p>Take it home on the lute Kote!! ok, maybe not... Bastas back him up!</p><p><em>Boot to stirrup!</em><em>Hand to mane!</em><em>Kote will ride without shadows hame!</em></p><p><em>It's "Hammer! Go, Hammer! X Hammer! Yo, Hammer!"</em><em>And the rest can go and play</em></p>
 </div>
 
 <div id="post-tags">
     <br/> 
     <b>Tags: </b>
     
-    <a href="/tags-output/Creational">Creational</a>
+    <a href="/tags-output/Fantasy">Fantasy</a>
     
-    <a href="/tags-output/Software">Software</a>
-    
-    <a href="/tags-output/Clojure">Clojure</a>
-    
-    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
-    
-    <a href="/tags-output/Java">Java</a>
+    <a href="/tags-output/Kingkiller">Kingkiller</a>
     
 </div>
 
@@ -150,10 +108,10 @@ you want to call on it. We eliminated the filler with a multimethod.</p>
 
     <div id="prev-next">
         
-        <a class="button" href="/posts-output/2017-05-09-singleton">&laquo; Singleton Pattern</a>
+        <a class="button" href="/posts-output/2017-5-10-facade-pattern">&laquo; Facade Pattern</a>
         
         
-        <a class="right button" href="/posts-output/2017-5-8-adapter">Adapter Pattern &raquo;</a>
+        <a class="right button" href="/posts-output/2017-5-9-decorator-pattern">Decorator Pattern &raquo;</a>
         
     </div>
 
@@ -161,8 +119,8 @@ you want to call on it. We eliminated the filler with a multimethod.</p>
     <div id="disqus_thread"></div>
     <script type="text/javascript">
         var disqus_config = function () {
-            this.page.url = "https://drewverlee.github.io/posts-output/2017-5-08-factory-pattern";
-            this.page.identifier = "Factory Method Pattern";
+            this.page.url = "https://drewverlee.github.io/posts-output/mission";
+            this.page.identifier = "The Waystone Brothers";
         };
         (function() {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -195,7 +153,7 @@ window.klipse_settings = {
   }
 };
 </script>
-<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
 
 </body>
 </html>
