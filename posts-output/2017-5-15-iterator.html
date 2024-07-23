@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Interator Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="IntentProvide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.">
+
+<meta property="og:description" content="IntentProvide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-5-15-iterator" />
+<meta property="og:title" content="Interator Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>May 15, 2017</strong>
+        
+    </div>
+    <h1>Interator Pattern</h1>
+</div>
+<div>
+    
+    <h3 id="intent">Intent</h3><blockquote><p>Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.</p></blockquote><p>This is straight forward.</p><h3 id="in-clojure">In clojure</h3><p>In clojure collections:</p><ul><li>lists</li><li>sets</li><li>hashmaps</li><li>vectors</li></ul><p>Implement the <a href="https://clojure.org/reference/sequences">sequences</a> interface.</p><blockquote><p>Seqs differ from iterators in that they are persistent and immutable, not stateful cursors into a collection.</p></blockquote><p>So you can call first on any collection..</p><pre><code class="klipse-cljs nohighlight">(first [1 2])
+(first #{1 2})
+(first {:a 1 :b 2})
+(first '(1 2))
+</code></pre><p>or rest:</p><pre><code class="klipse-cljs nohighlight">(rest [1 2])
+(rest {:a 1 :b 2})
+(rest '(1 2))
+(rest #{1 2})
+</code></pre><p>Notice that what we get back from  <code>(rest #{1 2})</code> is actual a seq, not a vector <code>#{}</code>.</p><pre><code class="klipse-cljs nohighlight">(seq? (rest #{1 2}))
+</code></pre><h3 id="summery">Summery</h3><p>Sequences are a deep fundamental topic in Clojure, i suggesting reading more about <a href="http://insideclojure.org/2015/01/02/sequences/">here</a>
+In clojure we <em>rarely</em> define new data structures, but if you did, then it would probably be worth considering haveing
+them implement the Sequence interface.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Behavrioral">Behavrioral</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-5-15-memento">&laquo; Memento Pattern</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-5-13-flyweight-pattern">Flyweight Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-5-15-iterator";
+            this.page.identifier = "Interator Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

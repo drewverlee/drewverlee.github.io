@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Factory Method Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="###IntentThe GOF pattern says the intent is:">
+
+<meta property="og:description" content="###IntentThe GOF pattern says the intent is:">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-5-08-factory-pattern" />
+<meta property="og:title" content="Factory Method Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>May 8, 2017</strong>
+        
+    </div>
+    <h1>Factory Method Pattern</h1>
+</div>
+<div>
+    
+    <p>###Intent</p><p>The GOF pattern says the intent is:</p><blockquote><p>Define an interface for creating an object, but let subclasses decide which
+class to instantiate. Factory Method lets a class defer instantiation to
+subclasses.</p></blockquote><ul><li><p>Here is a fairly human consumable <a href="http://alvinalexander.com/java/java-factory-pattern-example">example</a>.</p></li><li><p>Here is an interesting  post on this pattern in <a href="http://blog.wagjo.com/factory.html">clojure</a>.
+I say interesting because i can't tell if this is over engineered.</p></li></ul><p>The premises is you don't want your client to be found to a certain set of functionality.</p><p>Maybe it would be best if we looked at their example code?</p><pre><code>Product* MyCreator::Create (Productld id) {
+    if (id == YOURS)  return new MyProduct;
+    if (id == MINE)   return new YourProduct;
+        // N.B.: switched YOURS and MINE
+
+    if (id == THEIRS) return new TheirProduct;
+
+    return Creator::Create(id); // called if all others fail
+}
+</code></pre><p>Right, so its a switch statement.</p><h3 id="clojure-implementation">Clojure implementation</h3><p>I'm not sure what to do here. It seems like the problem is that you have some
+data and you want the code to handle it no matter what the type. Look at the
+example code above, <code>id == Yours</code> is akin to a type check. In Clojure we have a method
+for dispatching to functionality based on a function that will do the same</p><p>the difference is that instead of fetching the class, i'm going to just perform
+the action we need to get the job done.</p><pre><code class="klipse-cljs nohighlight">(defmulti draw (fn [{:keys [shape]}] shape))
+
+(defmethod draw :circle 
+   [{:keys [shape]}] (str "drawing a  big " shape))
+
+(draw {:shape :circle})
+</code></pre><p>Things change and you want another shape?</p><pre><code class="klipse-cljs nohighlight">
+(defmethod draw :square
+   [{:keys [shape]}] (str "drawing a  tiny " shape))
+
+(draw {:shape :square})
+</code></pre><p>However what type a  multimethod is dispatched is determined at compile time,
+often we want to dispatch on some run time value. In which case we can juse use any number
+of conditional control structures <code>if cond when</code></p><p>Here is a quick example.</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
+  (cond
+    (odd? n) "odd"
+    (zero? n) "zero"))
+</code></pre><p>Then try it out:</p><pre><code class="klipse-cljs nohighlight">(describe-number 5)
+</code></pre><p>I talk the various tradeoffs of chaining together functions
+on the Chain of Responsibility post.</p><h3 id="summery">Summery</h3><p>The factory pattern is about building up an object based on some input.
+Objects are groups of functions. But in functional languages we don't group
+together functions in a class, we call them as needed on the data. The factory method
+seems to be a filler step between getting the data you need to the functions
+you want to call on it. We eliminated the filler with a multimethod.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Creational">Creational</a>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-5-8-adapter">&laquo; Adapter Pattern</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-4-26-simple-by-design">Simple By Design &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-5-08-factory-pattern";
+            this.page.identifier = "Factory Method Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

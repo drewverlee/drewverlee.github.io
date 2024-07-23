@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Bridge Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="###Goal">
+
+<meta property="og:description" content="###Goal">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-4-10-bridge-pattern" />
+<meta property="og:title" content="Bridge Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>April 10, 2017</strong>
+        
+    </div>
+    <h1>Bridge Pattern</h1>
+</div>
+<div>
+    
+    <img src="/img/bridge.jpg" /><p>###Goal</p><p>Bridge pattern is described in the GOF as:</p><blockquote><p>decoupling an abstraction from its implementationso that the two can vary independently**</p></blockquote><p>I suggest reading this <a href="http://www.journaldev.com/1491/bridge-design-pattern-java">Explanation</a>.</p><p>However, i think i haven't read a single description that actual captures what their doing
+in practice, so i put foth my own:</p><p><b>The Bridge pattern is about  extending data independently of the functions that operate on that
+data</b></p><p>###Implementation in clojure</p><p>Lets motivate a problem first. We have shapes and colors and we want to draw them.
+<i>I know, your staggering at the task already</i></p><p>First unlike, 90% of the examples on the web, i'm going to do the sane thing and say that
+you can't draw a shapeless color or a colorless shape. Both are nonsense. It's going to take us a while to fullfil
+that requirement, but its very satisfying when we do.</p><p>This is what our api would look like if it were built:</p><p><code>(draw drawable)</code></p><p>Whats a drawable you say? Well, its a thing that can be drawn and it can be drawn
+if it has both a shape and a color.</p><p>lets go ahead and define drawable using a multimethod.  A multimethod defines a
+function with a name (<code>drawable</code>).  When the function is called <code>(drawable arguments)</code> the results determine the actual function the arguments will be
+called on. Hold onto your questions, you already understand what this is doing
+from that description but you need to see it in action to be sure.</p><pre><code class="klipse-cljs nohighlight">(defmulti draw (fn [{:keys [color shape]}] [color shape]))
+</code></pre><p>Now we define a defmethod, which is the  function that the multimethod might pass
+the arguments it got on to.</p><pre><code class="klipse-cljs nohighlight">(defmethod draw ["blue" "circle"]  [{:keys [color shape]}]
+          (str "drawing a " color " " shape "!"))
+</code></pre><p>If it helps you can think of the multimethod like a rail-road switch.</p><img src="/img/rail-road-switch.jpg" /><p>With the defmethods being the tracks afterwards, the train here would be the arguments themselves e.g <code>{:shape "circle" :color pink}</code>. The switch decides
+which defmethod to use.</p><p>Lets return to the problem at hand and draw a blue circle:</p><pre><code class="klipse-cljs nohighlight">(draw {:shape "circle" :color "blue"})
+</code></pre><p>We have demonstrated the ability to extend data independently of the functions that operate
+on them and so have satisfied the Bridge Design Pattern.</p><p>###Summery:</p><p>The Bridge Pattern is notable because it decouples abstractions, so they can be
+composed together.  It allows a shape type to take a color type without it
+needed to now how colors work. This follows the wisdom of "preferring composition over inheritance"  It should also remind you of a SOLID principle.
+Take a moment a think of which one... The answer is <a href="http://joelabrahamsson.com/a-simple-example-of-the-openclosed-principle/">Open/Close Principle</a>
+It might be worth your while to work through that blog post, it solves nearly
+the same problem that the Bridge design pattern is trying to address.
+Ironically though, the solution in the Open Closed Principle blog post fails to
+address the issue of what happens when we add another Function like <code>Find paraimter</code> Now were back to opening up every class to make this change. This
+problem has a name, its called the <a href="https://www.ibm.com/developerworks/library/j-clojure-protocols/">ExpressionProblem</a>. If that
+link didn't tip you off, clojure solves this using multimethods, which is what we
+leveraged above in our implementation, because again the Bridge Design pattern is related to the open closed
+principle in that they both suggest you compose your functionality together, rather then build a ridge hierarchy (inheritance).</p><p>###Explanation:</p><p>Multimethods solve the problem because they can dispatch on a function over the data and sense a function over data
+can do anything, this gives you unlimited flexibility in decoupling the data your dispatching on. I'm willing to
+bet we solve a lot of design patterns with multimethods. Let's return to another part of the OO solution that
+doesn't really jive well with the goal of being flexible. Why does a shape <em>have</em> a color. Why doesn't a <em>color</em> have a
+shape. The reality is both ways of thinking about the problem are a distraction.  And if you go back to our
+implementation of a drawable, we didn't (think about it..):</p><pre><code class="klipse-cljs nohighlight">(draw {:shape "circle" :color "blue"})
+</code></pre><p>We passed a map with a shape and color key. The map itself isn't a shape or a color. It simple holds that information, were
+able to draw it because it contains things that when combine together are ... drawable. So what makes something drawable isn't its type,
+but the data it holds. If something doesn't hold a shape or color key, its not draw-able.
+Which reminds me, we didn't complete our interface, we said it wasn't possible to draw a shapeless color. We never checked
+to make sure that was true:</p><pre><code class="klipse-cljs nohighlight">(draw {:color "blue"})
+</code></pre><p>So that throws an error. Which isn't quite right, we should handle that case.
+Also what if we define a new shape and color that we don't have  dispatch value on? What if we want some default value?</p><pre><code class="klipse-cljs nohighlight">(draw {:color "pink" :shape "square"})
+</code></pre><p>Also an error.</p><p>Luckly the solution to both these woes is to have a default value:</p><pre><code class="klipse-cljs nohighlight">(defmethod draw :default [{:keys [color shape]}]
+  (if-let [attr (and color shape)]
+    (str "drawing a " color " " shape "!" )
+    (str "Ugh i can't draw that")))
+</code></pre><p>Now we can draw any new color &amp; shape combination with no changes to the data itself.</p><pre><code class="klipse-cljs nohighlight">(draw {:color "green" :shape "Hulk"})
+</code></pre><p>And we elegantly handle when we can't draw something.</p><pre><code class="klipse-cljs nohighlight">(draw {:color "green"})
+</code></pre><p>There we have it, the itch the Bridge Pattern is trying to scratch is handled elegantly by a feature in Clojure.</p><p>###Extra Credit</p><p>Reality sets in and you realize that you <b>can't draw something if it doesn't have a size!!!</b>
+Use your new found super powers to address this issue. Be careful and think about:</p><ul><li>What parts need to changes to accommodate this?</li><li>breaking backward compatibility with existing code</li><li>should i create a new method or just change the old one?</li></ul><pre><code class="klipse-cljs nohighlight">;; TYPE HERE (it auto evaluates your code)
+</code></pre>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-4-11-builder-pattern">&laquo; Builder Pattern</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-4-10-command-pattern">Commander Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-4-10-bridge-pattern";
+            this.page.identifier = "Bridge Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

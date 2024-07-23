@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Proxy Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="IntentThe Gang of Four book says the intent is:">
+
+<meta property="og:description" content="IntentThe Gang of Four book says the intent is:">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-5-13-proxy" />
+<meta property="og:title" content="Proxy Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>May 13, 2017</strong>
+        
+    </div>
+    <h1>Proxy Pattern</h1>
+</div>
+<div>
+    
+    <h3 id="intent">Intent</h3><p>The Gang of Four book says the intent is:</p><blockquote><p>Provide a surrogate or placeholder for another object to control access to it.</p></blockquote><p>The goal is to only do some expensive task... when you need to. The authors
+give the example of separating initializing a document object which can be expensive
+from using some metadata about the document, which is inexpensive.</p><h3 id="in-clojure">in clojure</h3><p>We Clojure and FP in generally, its harder to have an abstraction that does
+two things the same way a class does two things. In clojure you could
+build a constructor for a record and have it perform the expensive idealization
+just to fetch some meta-data. But i would recommend not doing that.
+If some set of functions depend on an another set of expensive functions,
+but others dont, then just make this explicit.</p><pre><code>* Expensive-function "&lt;---" depedent functions
+* inexpsive functions
+</code></pre><p>Expensive operation:</p><pre><code class="klipse-cljs nohighlight">(defn open-file 
+   "opening the file may be expensive!!!"
+   [f] 
+  (swap! f assoc :opened-file "opened file"))
+</code></pre><p>A Function that depends on some data inside the object existing:</p><pre><code class="klipse-cljs nohighlight">(defn read-file [f] 
+  (:opened-file @f))
+</code></pre><p>A function that doesn't rely on that data being their already</p><pre><code class="klipse-cljs nohighlight">(defn file-size [f] 
+ (swap! f assoc :file-size 5))
+</code></pre><p>Lets create a file to see how this works:</p><pre><code class="klipse-cljs nohighlight">(def file (atom {}))
+</code></pre><p>use the inexpensive function:</p><pre><code class="klipse-cljs nohighlight">(file-size file)
+</code></pre><p>Now the dependent function:</p><pre><code class="klipse-cljs nohighlight">(read-file file)
+</code></pre><p>ops that failed! we need to open it first!</p><pre><code class="klipse-cljs nohighlight">(open-file file)
+</code></pre><p>Now it works:</p><pre><code class="klipse-cljs nohighlight">(read-file file)
+</code></pre><h3 id="summery">Summery</h3><p>The proxy pattern is about saving memory or space, their are lots of ways to do this,
+all of which depend on the context. In generally we should always be aware of:</p><ul><li>Caching or Memorization in order to not repeat work.</li><li>Better algorithms</li><li>Lazy evaluation</li><li>Parallelism</li></ul><p>For example, it would be wise to cache our open-file function from above to make sure that the client
+doesn't re-do the expensive task each time they call it. Maybe by checking a hash of the file to see if it has
+changed and only re-opening it if has. Maybe by lazy evaling the file to only open up until the point we need.</p><p>However the proxy pattern seems more concerned with hiding an expensive operation from the client,
+if this operation truly is a problem, then i suggest not doing that. Instead, just separate out the functions
+and try to indicate that a operation might be expensive.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Structural">Structural</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-5-13-flyweight-pattern">&laquo; Flyweight Pattern</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-5-10-facade-pattern">Facade Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-5-13-proxy";
+            this.page.identifier = "Proxy Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

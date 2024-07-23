@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Commander Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="###Goal
+Commander Pattern is about controlling execution of a function on some data.###Implementation in clojure">
+
+<meta property="og:description" content="###Goal
+Commander Pattern is about controlling execution of a function on some data.###Implementation in clojure">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-4-10-command-pattern" />
+<meta property="og:title" content="Commander Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>April 10, 2017</strong>
+        
+    </div>
+    <h1>Commander Pattern</h1>
+</div>
+<div>
+    
+    <p>###Goal
+Commander Pattern is about controlling execution of a function on some data.</p><p>###Implementation in clojure</p><p>A command holds everything we need to execute a function on some data. This command
+holds the addition operator and a list of arguments <code>[1 2]</code> that we plan on adding together:</p><pre><code class="klipse-cljs nohighlight">(def command {:cmd + :args [1 2]})
+</code></pre><p>Just-execute is a function that true to its name, just executes the command. Don't worry
+about how this is done:</p><pre><code class="klipse-cljs nohighlight">(defn just-execute [{:keys [cmd args] :as command}]
+  (apply cmd args))
+</code></pre><p>invoke it and as you expect the result is 3</p><pre><code class="klipse-cljs nohighlight">(just-execute command)
+</code></pre><p>We have demonstrated the benefits the commander pattern tries to achieve. To demonstrate this point further consider
+that we can now do anything we like with this command. For example store it somewhere:</p><pre><code class="klipse-cljs nohighlight">(defn store-and-execute [store {:keys [cmd args] :as command}]
+    (conj store (assoc command :result (apply cmd args))))
+</code></pre><p>invoke it (the output will be hard to read as its returning the javascript function equilvent)</p><pre><code class="klipse-cljs nohighlight">
+(store-and-execute [] command)
+</code></pre><p>Or maybe we want to add another number only before we before the operation:</p><pre><code class="klipse-cljs nohighlight">(defn add-number-and-execute [{:keys [cmd args] :as command}]
+    (apply cmd (conj args 5)))
+</code></pre><p>We get 8 as we expect:</p><pre><code class="klipse-cljs nohighlight">(add-number-and-execute command)
+</code></pre><p>We can do anything we want with the function and this data. We have complete control and so have satisfied the Commander Pattern.</p><p>###Summery:
+The Commander Pattern is about controlling when and where a function is called and on what. This sounds like it should
+be a fundamental part of a programming language, and for the most part it is. Nearly all languages give you this ability,
+but to what degree is another matter. Any language without fully supported first class functions is going to leave
+its practitioners scratching their heads on how to retro-fit them in. This is why we have the Commander Pattern, because
+its confusing enough and hard enough to achieve this level of flexibility that its worth giving a name. In short,
+the Command Pattern is a work around for the lack of first class functions.</p><p>###Explanation:</p><p>The following will only make sense if you have read the literature on the Commander Pattern.</p><p>So how does having first class functions remove all the abstractions we typically find in the Commander Pattern?</p><p>I wont produce another UML chart here, I encourage you to go find some. But here are the abstractions/classes:</p><ul><li>Commander Interface/Command</li><li>Commander Implementation/Concrete Command</li><li>Receiver</li><li>Client</li><li>Command</li><li>Invoker</li></ul><p>There seems to be a lot going on here, and their is, there is a lot going on in the code in the Implementation
+section above, but the point is you didn't have to do any of the work.</p><p>Sense in we can pass functions around , there is no need to have a Command Interface or its Implementation
+to accommodate this ability to call a method generically so it just becomes part of the Invoker (<code>just-execute</code>).</p><p>The Reciever is just the original function we want to control (<code>+</code>).</p><p>The client took a reference to the function and called it given the Invoker and the receiver.  In our
+example it just becomes where-ever we choose to call <code>just-exucte</code> against the command. We don't need to put those
+into a special class or namespace.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-4-10-bridge-pattern">&laquo; Bridge Pattern</a>
+        
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-4-10-command-pattern";
+            this.page.identifier = "Commander Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

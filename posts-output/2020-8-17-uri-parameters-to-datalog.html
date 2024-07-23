@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Considering alternatives to the CommonURLParameters Language</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="Introduction">
+
+<meta property="og:description" content="Introduction">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-8-17-uri-parameters-to-datalog" />
+<meta property="og:title" content="Considering alternatives to the CommonURLParameters Language" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>August 17, 2020</strong>
+        
+    </div>
+    <h1>Considering alternatives to the CommonURLParameters Language</h1>
+</div>
+<div>
+    
+    <h2 id="introduction">Introduction</h2><img src="/img/sp.png" /><p>The above is an example program written in what i'll be calling the CommonUrlParmeters Language (CUP).
+which belongs in a family of UrlParameters languages. If this example looks like
+a typically browser client URL your correct. The purpose of this post is to explore what
+falls out of thinking of the url as a programming language.</p><h2 id="history">History</h2><p>A brief look into the history of the url tells us that:</p><ol><li>Path parameters were based off the unix file system.</li><li>Query parameters were originally used to search index's and were later repurposed for webforms.</li></ol><p>Given the historical drive to evolve the url was driving by increasing communication demands, it should be natural
+to consider what the current demands are and if the CUP language or any langauge in the Url Parameters family is a good fit.</p><h2 id="where-are-we-now">Where are we now?</h2><p>The current internet landscape is massive and the competition is greater then ever,
+This has been pushing the people to express arbitrarily complex functionality in
+these languages. Consider this healthcare specification called fhir:</p><h3 id="composite-url"><a href="https://www.hl7.org/fhir/search.html#combining">composite URL</a></h3><blockquote><p>GET [base]/DiagnosticReport?result.code-value-quantity=http://loinc.org|2823-3$gt5.4|http://unitsofmeasure.org|mmol/L</p></blockquote><p>Without going into details it should be clear that there is more going on here then your typical webapi. This string needs to be parsed by a specific grammar and translated into a language your system and eventually your database needs to understand. As a developer you should be as concerned about the composability and simplicity of your URL language as your database query language.</p><h2 id="unifying-concepts-in-order-to-compare">Unifying concepts in order to compare.</h2><p>I find i learn best by connecting new ideas to existing ones that i have a stronger mental model. To that end,
+I put forth that the logic a back-end server employs to turn url parameters into
+executable code is the same process that a compiler for a traditional
+programming language takes:</p><ol><li>Tokenization : Extracting the parameters and values from the url parameters.</li><li>Lexical analysis : Defining the relationship between the  path parameters and query parameters.</li><li>Emitter: Turning the relationship into executable code.</li></ol><p>To demonstrate this lets write a compiler for a language within the
+UrlParamete's family. This wont be the CommonUrlParmeters langauge (CUP),
+but it will be surprisingly close for very little work. Will be emitting a valid
+query map that could be passed to the datomic query api.</p><p>To simplify were going to treat the path parameters the same way query parameters are usually handled.
+You can think of a set which contains all your data and each key value pair as a filter on that set.</p><p>For example. Give me everyone named sam who is male might look like like this:</p><pre><code>"name/sam?gender=male"
+</code></pre><p>The Grammar only needs to distinguish between are attributes (keys) and their values:</p><pre><code>QUERY = CLAUSE+
+CLAUSE = (ATTRIBUTE &lt;S&gt; VALUE [&lt;S&gt;])
+S = "/" | "&amp;" | "?" | "="
+ATTRIBUTE = WORD 
+VALUE = WORD
+&lt;WORD&gt; = #'[a-zA-Z]+'
+</code></pre><p>If we walk our parse tree we see that we have a query made up of clauses which are made of our attribute value pairs:</p><img src="/img/ssp.png" /><p>The final step is to emit/transform our tree into something which can be executed. In our case,
+that means transforming it to a <a href="https://docs.datomic.com/on-prem/clojure/index.html#datomic.api/query">datomic query map</a> which is the shape you pass to the datomic query function. The simplest way is to walk up the tree and transform each type.</p><pre><code class="clojure">{:ATTRIBUTE keyword
+ :VALUE     identity
+ :CLAUSE    (fn [a v] {:entity '?e :attribute a :value-input v})
+ :QUERY     (fn [&amp; c]
+              (let [clauses (map #(assoc % :value (symbol (str "?" (gensym)))) c)]
+                {:query {:find  ['?e]
+                         :in    (into ['$] (map :value clauses))
+                         :where (mapv (juxt :entity :attribute :value) clauses)}
+                 :args  (into [:db] (map :value-input clauses))}))}
+</code></pre><p>output to query map</p><pre><code class="clojure">
+{:query
+ {:find  [?e],
+  :in    [$ ?G__14055 ?G__14056],
+  :where [[?e :name ?G__14055] [?e :gender ?G__14056]]},
+ :args [:db "sam" "male"]}
+</code></pre><p>How close is this grammar to the one found in some of the most popular frameworks like rails and django?</p><p>The only thing difference is that the path params would be linked
+references from left to right with the final param being filtered by the query
+params. To achieve this the changes to the grammar are modest:</p><ol><li>We have to distinguish between path and query parameters</li><li>Check if the last path parameters has a value or not</li></ol><p>grammar:</p><pre><code class="text">QUERY = PATHP &lt;"?"&gt; QUERYP*
+QUERYP = (ATTRIBUTE &lt;"="&gt; VALUE [&lt;"&amp;"&gt;])
+PATHP = (SEGMENT [&lt;"/"&gt;])+
+SEGMENT = (ATTRIBUTE &lt;"/"&gt; VALUE) | ATTRIBUTE
+ATTRIBUTE = WORD 
+VALUE = WORD | NUMBER
+&lt;WORD&gt; = #'[a-zA-Z]+'
+&lt;NUMBER&gt; = #'[0-9]+'
+</code></pre><p>However in the transformation/emitting stage this leads to some uncomfortable book keeping
+because the head and tail of the path params are now special cases.</p><p>Note genbinding is <code>(symbol (str "?" (gensym)))</code></p><p>transformations:</p><pre><code class="clojure">{:ATTRIBUTE identity
+ :VALUE     identity
+ :SEGMENT   (fn [&amp; xs] xs)
+ :PATHP     (fn [&amp; xs]
+              (reduce
+                (fn [clauses [attr value]]
+                  (let [from        (last clauses)
+                        between-ref (genbinding)
+                        in-binding  (genbinding)
+                        out-ref     (genbinding)]
+                    (concat clauses
+                      (cond
+                        (nil? from)  [{:entity '?a :base attr :attribute (qualify attr "id") :in-value value :in-binding in-binding}]
+                        (nil? value) [{:entity (:entity from) :base attr :out-ref out-ref :attribute (qualify (:base from) attr) :ref between-ref}]
+                        :else        [{:entity (:entity from) :attribute (qualify (:base from) attr) :ref between-ref}
+                                      {:entity between-ref :base attr :attribute (qualify attr "id") :in-binding in-binding :in-value value }]))))
+                []
+                xs))
+ :QUERYP    (fn [attr value]
+              {:attribute attr :value value})
+ :QUERY     (fn [path &amp; query]
+              (let [{:keys [base ref]} (-&gt; path last)
+                    clauses            (into path (map
+
+                                                    (fn [{:keys [attribute value]}]
+                                                      {:entity     ref
+                                                       :attribute  (qualify base attribute)
+                                                       :in-binding (genbinding)
+                                                       :in-value   value})
+                                                    query))
+                    args (keep :in-value clauses)]
+                {:query {:find  ['?a]
+                         :in    (into ['$] (keep :in-binding clauses))
+                         :where (map (fn [{:keys [entity attribute in-binding ref]}]
+                                       [entity attribute (or in-binding ref)]) clauses)}
+                 :args  (into ['db] args)}))}
+
+</code></pre><p>emitting to datomic query map again, nothing surprising here:</p><pre><code class="clojure">{:query
+ {:find [?a],
+  :in [$ ?G__17714 ?G__17713 ?G__17705 ?G__17708],
+  :where
+  ([?G__17710 :staff/gender ?G__17714]
+   [?G__17710 :staff/job ?G__17713]
+   [?a :company/id ?G__17705]
+   [?a :company/building ?G__17707]
+   [?G__17707 :building/id ?G__17708]
+   [?G__17707 :building/staff ?G__17710])},
+ :args [db "male" "developer" "1" "2"]}
+
+</code></pre><p>We have extended our toy language just a bit to the one of the most common languages of the web.
+Used by popular framewords such as Rails, Django, etc..</p><p>a detailed set of it's shortcomings would be easy to create by starting with an robust query langauge and
+asking how to express it.</p><p>This in no way follows the same organization and grammar rules we just produced.</p><h2 id="new-perspective">New Perspective</h2><p>Lets assume i have convinced you we can interpret the URL just like any other programming language. So what? why is that useful?</p><p>Lets explore some examples of how this new perspective changes how we view things:</p><ol><li>Ruby on rails defines a programming language between the database server and client.</li><li>When the lead developer added a regex to parse the query parameters values on a pipe to mean logical OR he was extending the programming language.</li><li>When the junior dev asked the team lead how he could avoid the N+1 problem he was asking how to understand the limits of the grammar of programming language.</li><li>When Facebook's graphQL is a competing language to the path+queryparam language</li></ol><p>The answer is because <a href="https://youtu.be/IOiZatlZtGU?t=2174">discovering</a> the correct language is hard. It's unlikely that the lessons
+in highly mathematical languages have no baring on over the wire communication. It means that likely large amounts of work have been done in this field
+and we can tap into that.</p><h2 id="progress-is-more-katamari">Progress is more katamari</h2><img src="/img/katamari.png" width="750px" /><p>Katamari is a game where you push around a ball of stuff and the bigger it gets the bigger the
+things you can pick up. It's a game of momentum. Similarly life is about momentum. The url parameter language
+family is here to stay and their are really good solutions in every language for it. In clojure for instance the <a href="https://github.com/metosin/reitit">reitit</a>
+library lets you build the router (the url compiler) using data structures which in turn allows for the router itself to be the output of some function.</p><pre><code class="clojure">(require '[reitit.core :as r])
+
+(def router
+  (r/router
+    [["/api/ping" ::ping]
+     ["/api/orders/:id" ::order]]))
+
+(r/match-by-path router "/api/ping")
+; #Match{:template "/api/ping"
+;        :data {:name ::ping}
+;        :result nil
+;        :path-params {}
+;        :path "/api/ping"}
+</code></pre><p>This is about as good as handling the SSP language can get.</p><h3 id="alternatives">Alternatives</h3><p>The clojure community is ripe with alternatives to SSP. Some are tied into frameworks and projects. Here is a quick list of a few i know about:</p><ol><li><a href="https://edn-query-language.org/eql/1.0.0/what-is-eql.html">EQL</a> + <a href="https://wilkerlucio.github.io/pathom/v2/pathom/2.2.0/introduction.html">Pathom</a></li></ol><p>Tony Kay's brilliantly designed <a href="https://fulcro.fulcrologic.com/">Fulcro</a> framework uses EQL (a subset of datomics pull query syntax)</p><p>As a light intro to EQL, consider you want to following data:</p><pre><code class="clojure">{:album/name "Magical Mystery Tour"
+ :album/year 1967}
+</code></pre><p>So the EQL you pass the server would just be those keys:</p><pre><code class="clojure">[:album/name :album/year]
+</code></pre><p>Pathom is responsible for parsing your EQL. It's fulfilling the traditional role of a router.</p><ol start="2"><li><a href="https://github.com/jacobobryant/trident">Trident</a></li></ol><p>Jacob Bryant's exploration into this topic is worth following. He built a recommendation system
+<a href="https://findka.com/">Findka</a> and turned the code behind it a set of tools contained
+in <a href="https://github.com/jacobobryant/trident">trident</a>. He talks about moving away from fulcro
+<a href="https://jacobobryant.com/blog/2020-01-13/">here</a></p><blockquote><p>The biggest issue I had with Fulcro is that there's a lot of added complexity
+involved with maintaining the client-side database. One of Fulcro's main
+features is automatic normalization: you define your data model as a tree
+structure, inline with your UI, and then Fulcro converts that into a
+normalized graph structure for you. However, in order to make the automatic
+normalization work, you have to do a fair amount of work whenever you read or
+write data.</p></blockquote><ol start="3"><li><a href="https://github.com/arachne-framework/factui">factUI</a></li></ol><blockquote><p>FactUI is a library for efficiently rendering user interfaces declaratively, based on a tuple-oriented data store.</p></blockquote><ol start="4"><li><a href="https://github.com/mpdairy/posh">Posh</a></li></ol><p>Model your frontend state using datascript which is based on datomic.</p><ol start="6"><li><a href="https://github.com/oakes/odoyle-rules">Odoyle-rules</a></li></ol><p>Rules engines reactivity update your database based on incoming data in the most efficient way possible. If you store your html state in your database and sync it to your front end, then you achieve <code>web after tomorrow</code> like semantics. Further more, your application is more functional because instead of placing functions inside state (the html tree). You put functions in the drivers seat</p><pre><code class="clojure">(def components
+  (orum/ruleset
+    {click-counter
+     [:what
+      [::global ::clicks clicks]
+      :then
+      (let [*session (orum/prop)]
+        [:button {:on-click (fn [_]
+                              (swap! *session
+                                (fn [session]
+                                  (-&gt; session
+                                      (o/insert ::global ::clicks (inc clicks))
+                                      o/fire-rules))))}
+         (str "Clicked " clicks " " (if (= 1 clicks) "time" "times"))])]}))
+
+</code></pre><ol start="6"><li><a href="https://www.hyperfiddle.net/">Hyperfiddle</a></li></ol><p>Hyperfiddle asks the question what if we decoupled in the right places and pushed composition to the limits. It syncs your frontend to your database by providing a unified language similar to datomic tree pull language with the notable differences</p><ol><li>where children can reference parents which allows for more powerful relationship joins.</li><li>any function can join, not just a keyword. Think multimethods instead of protocols. e.g</li></ol><p>Think instead of datomic pull instead a datomic query. you had a datomic query inside your datomic pull.</p><h3 id="discovering-what-comes-next-for-you">Discovering what comes next for "you"</h3><p>Never ask the question "whats best". It's misleading because it assumes some universal truth. When it comes to
+picking a language be it clojure vs java or SSP vs EQL you have to personalize the question. What are the goals?
+If you want to pick a language purely based on expressiveness and simplicity then i see no reason why you can't send
+a datomic query on the wire. (read Jacobs blog post for details). If your part of a large corporation with little
+time and energy to innovate then you will likely end up with SSP but now your armed with a new perspective which you
+can use to communicate tradeoffs.</p><h2 id="references">references</h2><ol><li>https://news.ycombinator.com/item?id=21738331</li><li>elements of clojure</li><li><a href="https://blog.cloudflare.com/the-history-of-the-url/">history of the url</a>
+https://www.moesif.com/blog/technical/api-design/REST-API-Design-Best-Practices-for-Parameters-and-Query-String-Usage/
+https://hackernoon.com/restful-api-designing-guidelines-the-best-practices-60e1d954e7c9
+https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_URL
+https://www.educative.io/blog/behind-the-screens-what-happens-when-you-type-a-url-in-a-browser
+https://restfulapi.net/</li></ol>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/datalog">datalog</a>
+    
+    <a href="/tags-output/datomic">datomic</a>
+    
+    <a href="/tags-output/webapplications">webapplications</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2021-5-2-ring">&laquo; A (poorly) animated introduction to Clojure&#39;s HTTP server library Ring</a>
+        
+        
+        <a class="right button" href="/posts-output/2020-7-19-minimal-shadow-cljs-with-deps-dev-setup">RDD with shadow cljs, deps, emacs and cider &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2020-8-17-uri-parameters-to-datalog";
+            this.page.identifier = "Considering alternatives to the CommonURLParameters Language";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+
+</body>
+</html>

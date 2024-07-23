@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Chain of Responsibility</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="###Goal">
+
+<meta property="og:description" content="###Goal">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-4-13-chain-of-responsibility" />
+<meta property="og:title" content="Chain of Responsibility" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>April 13, 2017</strong>
+        
+    </div>
+    <h1>Chain of Responsibility</h1>
+</div>
+<div>
+    
+    <img src="/img/Relay.jpg" /><p>###Goal</p><p>The Gof book describes the intent of the Chain of Responsibility as:</p><blockquote><p>Avoid coupling the sender of a request to its receiver by giving more than
+one object a chance to handle the request. Chain the receiving objects and
+pass the request along the chain until an object handles it.</p></blockquote><p>The book has more to say, but the take away is that
+the pattern reduces coupling between senders and receivers. This shounds
+a lot like the producer consumer pattern only without the requirement
+for concurrency.</p><p>I would say we need to</p><ul><li>[  ] decouple sender from receiver</li><li>[  ] default behavior for unhanded requests</li><li>[  ] request should be handled by every handler that can handle it*</li></ul><p>The last requirement</p><h3 id="how-we-would-express-this-in-clojure">How we would express this in clojure</h3><p>Assuming we just wanted the first three requirements and not the one to have
+multiple handlers then this is simple using cond:</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
+  (cond
+    (odd? n) "odd"
+    (zero? n) "zero"))
+</code></pre><p>No mystery how this works:</p><pre><code class="klipse-cljs nohighlight">(describe-number 5)
+</code></pre><p>We have satisfied our first requirement, the client here isn't explicit calling
+those inner expressions</p><ul><li>[x] decouple sender from receiver</li></ul><p>The next thing to tackle is default behavior, we can just add something that always evals to true like a keyword.</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
+  (cond
+    (odd? n) "odd"
+    (zero? n) "zero"
+    :else "must be even then"))
+</code></pre><pre><code class="klipse-cljs nohighlight">(describe-number 4)
+</code></pre><p>In order to tackle</p><ul><li>[ ] request should be handled by every handler that can handle it*</li></ul><p>We have to change the function were using a threading macro.
+Threading functions have an <code>-&gt;</code> at the end and indicate that arguments pass through all
+their arguments.</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
+  (cond-&gt; []
+    (odd? n) (conj "odd")
+    (even? n) (conj "even")
+    (zero? n) (conj "zero")
+    (pos? n) (conj "positive")
+    :else (conj "i always happen")))
+</code></pre><p>But you will notice that :else is a bit of a lie, as it seemed to happen regardless:</p><pre><code class="klipse-cljs nohighlight">(describe-number 5)
+</code></pre><p>So it would probably be best to just handle the default case outside of the macro</p><pre><code class="klipse-cljs nohighlight">(defn describe-number [n]
+  (cond-&gt; []
+    (odd? n) (conj "odd")))
+
+
+(defn default-handler [r]
+ (if  (empty? r) ["even"] r))
+
+
+(default-handler (describe-number 2))
+</code></pre><p>Finally, if we want want to be able to change the handlers at run time we will need to
+abandon <code>cond</code> and use <a href="https://clojuredocs.org/clojure.core/reduce">reduce</a>. Reduce is a workhorse
+of clojure.</p><pre><code class="klipse-cljs nohighlight">;; we define an extra function just to show were not limited to core clojure functions...
+(defn big? [n] (&gt; n 10))
+
+(defn describe-number [n clauses]
+  (reduce
+    (fn [{:keys [r result]} {:keys [pred claus]}]
+      (if (pred r)
+        {:r r :result (conj result (claus r))}
+        {:r r :result result}))
+    {:r n :result []}
+    clauses))
+</code></pre><p>We have factored out the clauses from the code that runs them.</p><pre><code class="klipse-cljs nohighlight">(describe-number
+  11
+  [{:pred odd? :claus (fn [r] "odd")}
+   {:pred even? :claus (fn [r] "even")}
+   {:pred big? :claus (fn [r] "big")}])
+</code></pre><h3 id="summery">Summery</h3><p>Chain of responsibility is about decoupling senders and receivers. We showed how <code>cond</code> allowed
+us to have multiple handlers, but if we wanted the handlers to be determined at run time, we
+had to abandon it. This is because cond is a macro and so the arguments i hand it must adhere to a structure at compile time,
+and that structure doesn't allow for arbitrary clauses.</p><p>Luckily were able to apply reduce without much head scratching to solve our problem. It's also easy to fit
+more complex situations. For instance, it would be very powerful to only allow certain transactions of handlers
+the ["debit-account"] can only happen if the event is also handlable by the ["transfer money"] handler. We could do this by
+not actual firing the side effects until the end of the handler chain then validating the effects block.</p><p>However the big conclusion is that...</p><p><em>Chain of responsibility simplified was made possible by having fully supported first class functions</em></p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+    <a href="/tags-output/Behavioral">Behavioral</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-4-13-producer-consumer-pattern">&laquo; Producer Consumer Problem</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-4-12-abstract-factory-pattern">Abstract Factory Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-4-13-chain-of-responsibility";
+            this.page.identifier = "Chain of Responsibility";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

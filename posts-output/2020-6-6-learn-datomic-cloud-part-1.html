@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Learn Datomic Cloud - part 1</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="Datomic CloudDatomic cloud is a managed service on AWS that lets us easily deploy your application code
+alongside a persistent storage layer. How easily? Lets see.">
+
+<meta property="og:description" content="Datomic CloudDatomic cloud is a managed service on AWS that lets us easily deploy your application code
+alongside a persistent storage layer. How easily? Lets see.">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-6-6-learn-datomic-cloud-part-1" />
+<meta property="og:title" content="Learn Datomic Cloud - part 1" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>June 6, 2020</strong>
+        
+    </div>
+    <h1>Learn Datomic Cloud - part 1</h1>
+</div>
+<div>
+    
+    <h3 id="datomic-cloud">Datomic Cloud</h3><p>Datomic cloud is a managed service on AWS that lets us easily deploy your application code
+alongside a persistent storage layer. How easily? Lets see.</p><p>Assuming you follow the instructions <a href="https://docs.datomic.com/cloud/index.html#org57fb4a4">here</a> for a solo topology.
+You end up with a deployed running system that you just need to communicate with. Note some of the configuration below would
+be different for a production cluster. A prod cluster is too much money for hobby projects though!</p><p>Cutting to the chase, creating an api endpoint looks roughly like this.</p><ol><li>query database</li><li>wrap into a return response</li><li>ionize</li><li>push to cloud</li><li>deploy to cloud</li><li>expose your lambda</li><li>profit</li></ol><h3 id="1-query-database">1. Query database</h3><pre><code class="clj">(defn get-todo-lists
+  [db]
+  (d/q '[:find (pull ?list [*])
+         :where [?list :list/todo ?]]
+    db))
+</code></pre><h3 id="2-wrap-into-response">2. wrap into response</h3><pre><code class="clj">(defn get-todo-lists
+  [_]
+  (-&gt;&gt; "learn-datomic-for-blog"
+    utils/get-db
+    query/get-todo-lists
+    edn/write-str
+    edn-response))
+</code></pre><h3 id="3-ionize">3. ionize</h3><p>Here we use a library provided by datomic cloud to ionize the function above.</p><pre><code class="clj">(def todo-lists
+  (apigw/ionize get-todo-lists))
+</code></pre><p>You then reference that function in your ion config as a lambda.</p><pre><code class="clj">{:app-name "grow"
+ :lambdas
+ {:get-todo-lists
+  {:fn          grow.ion.http/todo-lists
+   :description "lambda proxy integration entry point for todo lists"}
+</code></pre><h3 id="4-push">4. push</h3><pre><code class="bash">clj -A: '{:op :push}'
+</code></pre><p>this captures stores your configuration and code in aws but doesn't run anything. This command will return the deploy
+command..</p><h3 id="5-deploy">5. deploy</h3><pre><code class="bash">clojure -A:ion-dev '{:op :deploy, :group grow-compute, :rev "&lt;some-id&gt;"}
+</code></pre><p>Which will essentially take your stored code that you pushed and makes it a reality on a running computer.
+It's more complex then this of course, read the official docs for more.</p><h3 id="6-expose">6. Expose</h3><p>This step is to expose your function as an endpoint and is done through the AWS console.
+Basically from the aws console you do</p><ol><li>Create API</li><li>Pick Rest API - BUILD (given what we want)</li><li>name it "get todo lists"</li><li>create</li><li>actions &gt; create resource &gt; configure as proxy &gt; create</li><li>set lambda &gt; <system-name>-get-todo-lists</system-name></li><li>settings &gt; add binary type &gt; "<em>/</em>"</li><li>actions &gt; deploy</li></ol><h3 id="7-profit">7. profit</h3><p>Now curl the end point it sets up...</p><pre><code class="bash">curl https://3gr2ovzas1.execute-api.us-east-2.amazonaws.com/dev/datomic
+</code></pre><p>And the output should look familiar</p><pre><code class="clj">[[{:db/id 4178144185548876,
+   :list/title "learn datomic",
+   :list/todo
+   [{:db/id 4178144185548877,
+     :todo/description "learn how to create a database"}
+    {:db/id 4178144185548878,
+     :todo/description "learn how to add the schema"}]}]
+ [{:db/id 48910675249987664,
+   :list/title "learning about datomic aggregates",
+   :list/todo
+   [{:db/id 48910675249987665,
+     :todo/description
+     "talk about how aggregates to speed up performance"}
+    {:db/id 48910675249987666,
+     :todo/description "talk about `with` function"}
+    {:db/id 48910675249987667,
+     :todo/description "talk about `with` function"}]}]]
+</code></pre><p>That's it. Given it's possible to an api around one endpoint this can be enough to fuel
+any number of hobby projects. Which my friend <a href="https://jacobobryant.com/">jacob</a> does to much greater success then me.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Application">Application</a>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/AWS">AWS</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Datomic-Cloud">Datomic-Cloud</a>
+    
+    <a href="/tags-output/Database">Database</a>
+    
+    <a href="/tags-output/Datomic">Datomic</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2020-6-8-learn-datomic-part-4">&laquo; Learn Datomic - part 4</a>
+        
+        
+        <a class="right button" href="/posts-output/2020-5-30-learn-datomic-part-3">Learn Datomic - part 3 &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2020-6-6-learn-datomic-cloud-part-1";
+            this.page.identifier = "Learn Datomic Cloud - part 1";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+
+</body>
+</html>

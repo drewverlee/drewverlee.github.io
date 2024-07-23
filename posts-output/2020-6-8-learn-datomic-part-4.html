@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Learn Datomic - part 4</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="Reviewin Part two we covered queries e.g">
+
+<meta property="og:description" content="Reviewin Part two we covered queries e.g">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-6-8-learn-datomic-part-4" />
+<meta property="og:title" content="Learn Datomic - part 4" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>June 6, 2020</strong>
+        
+    </div>
+    <h1>Learn Datomic - part 4</h1>
+</div>
+<div>
+    
+    <h2 id="review">Review</h2><p>in Part two we covered queries e.g</p><pre><code class="clj">(d/q '[:find ?e
+       :where
+       [?e :list/todo _]]
+  db)
+  ;;ouputs
+  [[4178144185548876]]
+</code></pre><p>but queries also come with ability to aggregate</p><pre><code class="clj">  (d/q '[:find (count ?e)
+         :where
+         [?e :list/todo _]]
+    db)
+
+  ;; =&gt; [[1]]
+
+</code></pre><p>To make this more interesting lets quickly add some more data</p><pre><code class="clj">  (d/transact conn {:tx-data [{:list/title "learning about datomic aggregates"
+                               :list/todo  [{:todo/description "talk about how aggregates to speed up performance"}
+                                            {:todo/description "talk about `with` function"}
+                                            {:todo/description "talk about `with` function"}]}]})
+
+</code></pre><p>A lot of the other aggregates don't make sense given our data
+e.g the average of a todo list. You can consult the docs for a full list.</p><p>here we see that we can get the number of todo's by list
+we show the title but it would work the same if you used the entity id.</p><pre><code class="clj">  (d/q '[:find ?title (count ?todo)
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]]
+    db)
+</code></pre><p>outputs</p><pre><code class="clj"> [["learn datomic" 2] ["learning about datomic aggregates" 3]]
+</code></pre><p>Here is a bit of a gotcha. We can see from above that the total todo's is 5. So when we count the descriptions
+we would expect 5 as well right? because each todo has one description.</p><pre><code class="clj">  (d/q '[:find (count ?description)
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         [?todo :todo/description ?description]]
+    db)
+
+
+
+</code></pre><p>outputs</p><pre><code class="clj">
+ [[4]]
+</code></pre><p>The reason we get back four is because the query function returns a "set" which only has unique values and then takes the count.
+we had two todo's with the same description. This is obvious if we include the todo id:</p><pre><code class="clj">  (d/q '[:find ?todo ?description
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         [?todo :todo/description ?description]]
+    db)
+
+
+
+</code></pre><pre><code class="clj"> [[48910675249987666 "talk about `with` function"] &lt;---- same
+    [4178144185548878 "learn how to add the schema"]
+    [48910675249987667 "talk about `with` function"] &lt;---- same
+    [48910675249987665 "talk about how aggregates to speed up performance"]
+    [4178144185548877 "learn how to create a database"]]
+
+
+</code></pre><p>remove the id</p><pre><code class="clj">  (d/q '[:find ?description
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         [?todo :todo/description ?description]]
+    db)
+
+
+
+</code></pre><pre><code class="clj"> [["talk about how aggregates to speed up performance"]
+    ["learn how to add the schema"]
+    ["learn how to create a database"]
+    ["talk about `with` function"]] &lt;---- only one
+</code></pre><p>If you want to get the count of unique items then use :with</p><pre><code class="clj">  (d/q '[:find  (count ?description)
+         :with ?todo
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         [?todo :todo/description ?description]]
+    db)
+</code></pre><pre><code class="outputs">
+ [[5]]
+</code></pre><p>what <code>with</code> does it that it includes the var (e.g todo) in the find specification, like this:</p><pre><code class="clj">  (d/q '[:find ?todo ?description
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         [?todo :todo/description ?description]]
+    db)
+</code></pre><p>but then drops after the find "part" is complete e.g before the aggregates and before returning. This means the return value
+will be a bag (potentially contain duplicates)</p><p>Ok one more nifty trick before we wrap it up.
+If instead of returning a tuple you want to return a map, then use the ":keys" key:</p><pre><code class="clj">  (d/q '[:find ?title (count ?todo)
+         :keys title total
+         :where
+         [?l :list/title ?title]
+         [?l :list/todo ?todo]
+         ]
+    db)
+</code></pre><p>ouputs</p><pre><code class="clj">
+ [{:title "learn datomic", :total 2}]
+
+</code></pre><p>That concludes part 4. Tell next time.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Database">Database</a>
+    
+    <a href="/tags-output/Datomic">Datomic</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2020-7-19-minimal-shadow-cljs-with-deps-dev-setup">&laquo; RDD with shadow cljs, deps, emacs and cider</a>
+        
+        
+        <a class="right button" href="/posts-output/2020-6-6-learn-datomic-cloud-part-1">Learn Datomic Cloud - part 1 &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2020-6-8-learn-datomic-part-4";
+            this.page.identifier = "Learn Datomic - part 4";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+
+</body>
+</html>

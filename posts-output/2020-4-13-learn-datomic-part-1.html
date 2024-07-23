@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Learn Datomic - part 1</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="DatomicWere going to be learning about datomic. This is aimed at beginners.">
+
+<meta property="og:description" content="DatomicWere going to be learning about datomic. This is aimed at beginners.">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2020-4-13-learn-datomic-part-1" />
+<meta property="og:title" content="Learn Datomic - part 1" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>April 12, 2020</strong>
+        
+    </div>
+    <h1>Learn Datomic - part 1</h1>
+</div>
+<div>
+    
+    <h3 id="datomic">Datomic</h3><p>Were going to be learning about datomic. This is aimed at beginners.</p><p>I don't want to hide anything, so were going to cover the setup. Don't worry though
+it's very minimal.</p><p>First we setup our namespace and grab the datomic client
+library and the edn library which will help read our datomic server
+secrets.</p><pre><code class="clj">
+(ns grow.scratch.learn-datomic
+  (:require [datomic.client.api :as d]
+            [clojure.edn :as edn]))
+</code></pre><p>Just remember that anytime you see d/something that something is
+a datomic api function.</p><p>Now let's grab our creds to talk to our datomic service.</p><pre><code class="clj">(def client (-&gt; "aws-config.edn"
+              slurp
+              edn/read-string
+              d/client))
+</code></pre><p>Now with those creds were gonna go ahead and create a new database. Yes just for you,
+thats how effortless this is.</p><pre><code class="clj">(d/create-database client {:db-name "learn-datomic-for-blog"})
+</code></pre><p>now lets get a connection to our new database</p><pre><code class="clj">(def conn (d/connect client {:db-name "learn-datomic-for-blog"}))
+</code></pre><p>lets create a schema for our new database for a todo list.
+Ignore the details of how this is done</p><pre><code class="clj">(def schema [{:db/ident       :list/title
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one}
+
+             {:db/ident       :list/todo
+              :db/valueType   :db.type/ref
+              :db/cardinality :db.cardinality/many
+              :db/isComponent true}
+
+             {:db/ident       :todo/description
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one}])
+</code></pre><p>and we transact it</p><pre><code class="clj">(d/transact conn {:tx-data schema})
+</code></pre><p>Lets add some data a list with two todos</p><pre><code class="clj">(d/transact conn {:tx-data [{:list/title "learn datomic"
+                             :list/todo [{:todo/description "learn how to create a database"}
+                                         {:todo/description "learn how to add the schema"}]}]})
+</code></pre><p>wow super meta!</p><p>lets go ahead and query the todos in that list. Dont worry about the lets
+your eyes pass over this. Dont try to understand it.</p><pre><code class="clj">(d/q '[:find ?description
+       :where
+       [?todo :todo/description ?description]
+       [?list :list/todo ?todo]
+       [?list :list/title "learn datomic"]]
+  (d/db conn))
+</code></pre><p>the output is</p><pre><code class="clj">[["learn how to add the schema"] ["learn how to create a database"]]
+</code></pre><p>rad!</p><p>lets break down how this works.</p><pre><code class="clj">(d/q '[:find ?description
+       :where
+       [?todo :todo/description ?description]
+       [?list :list/todo ?todo]
+       [?list :list/title "learn datomic"]]
+  (d/db conn))
+</code></pre><p>first, remove the outer layer (d/q [inner-layer] (d/db conn))</p><ul><li>d/q : is the query function.</li><li>d/db conn : is just the database were doing the query on.</li></ul><p>inner layer</p><pre><code class="clj">'[:find ?description
+  :where
+  [?todo :todo/description ?description]
+  [?list :list/todo ?todo]
+  [?list :list/title "learn datomic"]]
+</code></pre><p>the ' tells the compiler to ignore what's next so the function can handle how to read it.
+If that doesn't resonate with you no worries, just ignore the it for now.</p><pre><code class="clj">[:find ?description
+ :where
+ [?todo :todo/description ?description]
+ [?list :list/todo ?todo]
+ [?list :list/title "learn datomic"]]
+</code></pre><p>we can break this into two parts</p><ul><li>find</li><li>where</li></ul><pre><code class="clj">:find ?description
+</code></pre><p>:find declares what were going to find. In this case a description of a todo
+you have to put the question mark before the thing you want to find.</p><p>:where tells us where to find the thing! Lets read this line by line</p><p>we want the ?description for the ?todo</p><pre><code class="clj">[?todo :todo/description ?description]
+</code></pre><p>where that ?todo is part of a ?list</p><pre><code class="clj">[?list :list/todo ?todo]
+</code></pre><p>and that ?list title is "learn datomic"</p><pre><code class="clj">[?list :list/title "learn datomic"]
+</code></pre><p>great we did it!
+That a major chunk of what datomic is about.. getting information.</p><p>I'm proud of you. Join me next time as we learn a bit more about datomic!</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Database">Database</a>
+    
+    <a href="/tags-output/Datomic">Datomic</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2020-4-18-learn-datomic-part-2">&laquo; Learn Datomic - part 2</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-5-16-strategy">Strategy Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2020-4-13-learn-datomic-part-1";
+            this.page.identifier = "Learn Datomic - part 1";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+
+</body>
+</html>

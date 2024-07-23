@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: Abstract Factory Pattern</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="&lt;img src=&quot;/img/factory.jpg&quot;###Intent">
+
+<meta property="og:description" content="&lt;img src=&quot;/img/factory.jpg&quot;###Intent">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2017-4-12-abstract-factory-pattern" />
+<meta property="og:title" content="Abstract Factory Pattern" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>April 12, 2017</strong>
+        
+    </div>
+    <h1>Abstract Factory Pattern</h1>
+</div>
+<div>
+    
+    <p>&lt;img src="/img/factory.jpg"</p><p>###Intent</p><p>Design Patterns:  Elements of Reusable Object-Oriented Software says the intent of the
+Abstract Factory Principle is:</p><blockquote><p>Provide an interface for creating families of related or dependent objects
+without specifying their concrete classes.</p></blockquote><p>For a visual reference go <a href="https://dzone.com/articles/design-patterns-abstract-factory">here</a>.
+For an example in clojure that is more true to the original pattern check <a href="https://gist.github.com/didibus/7a7e2f9c9740d10159bdd3c1651fc43f">this out</a>.</p><p>###Implementation in clojure</p><p>An object should just be a bag of functions. So we we want to build up a bag of functions in clojure
+we have several options. We can  pass the functions into another function. This is one way to create a family of related
+functions.</p><pre><code class="klipse-cljs nohighlight">(defn f [x] (+ 1 x))
+(defn g [x] (* 3 x))
+(defn foo [f g x] (g (f x)))
+
+(foo f g 3)
+</code></pre><p>We could compose the functions together into one function using <a href="https://clojuredocs.org/clojure.core/comp">comp</a>:</p><pre><code class="klipse-cljs nohighlight">(def z (comp g f))
+(z 3)
+</code></pre><p>Or we could build up the function by supplying some if its arguments using <a href="https://clojuredocs.org/clojure.core/partial">partial</a>:</p><pre><code class="klipse-cljs nohighlight">(def fooy (partial foo f g))
+
+(fooy 3)
+</code></pre><p>Or we can create a bag of functions very much like an object:</p><pre><code class="klipse-cljs nohighlight">(def obj {:f f :g g})
+
+((obj :f) 2)
+</code></pre><p>But the Abstract Factory Method is about decoupling the client from the bag of functions/object
+its using. This way we can add new bags of functions/objects without breaking the client. We can
+also possible let the choice of functions happen at run time.</p><p>Allowing a function to behave different depending on the type is polymorphism.
+In Clojure we have two tools that achieve this, <a href="https://8thlight.com/blog/myles-megyesi/2012/04/26/polymorphism-in-clojure.html">mulimethods and protocals</a>.
+Were going to employ multimethods to build a car factory. Were not going to use the word factory in any function
+though, as it doesn't convey anything interesting here.  First we create some functions that are used to build the car. These functions dont do anything, but you can imagine whey they would do.</p><pre><code class="klipse-cljs nohighlight">(defn add-wheels [])
+(defn build-model-one-body [])
+(defn good-quality [] "good")
+</code></pre><p>Were going to bundle those together into a map so we can pass them together and so the functions have alias/keys.
+Later will pass those to the function that builds the car so it can take advantage of them:</p><pre><code class="klipse-cljs nohighlight">(def fancy-model-one {:build-body build-model-one-body :add-wheels add-wheels :quality good-quality})
+</code></pre><p>Now we add the multimethod upon-which our polymorphic dispatch rests. This will allow us to build different
+models of cars.  If it helps you can think of the multimethod like the interface.</p><pre><code class="klipse-cljs nohighlight">(defmulti build-car
+  (fn ([{:keys [model]}] model)))
+</code></pre><p>And a method we can dispatch to, this is like the concrete implementation.</p><pre><code class="klipse-cljs nohighlight">(defmethod build-car "v1"
+  [{:keys [wheels body fns] :as order}]
+  (str "building a " ((fns :quality)) " model 1 car"))
+</code></pre><p>Lets build a car to make sure everything works the way we expect. Notice we pass
+in part of the functions to build the car. This is a design choice. We show some other
+ways we build up our result later.</p><pre><code class="klipse-cljs nohighlight">(build-car {:model "v1" :wheels "g7s" :body "gold" :fns fancy-model-one})
+</code></pre><p>Great! But we just got word from the higher ups that we need to make some cut backs
+to improve revenue. so were offering the same model car but only its built by interns,
+were going to call this a <code>bad-quality</code> car. Half the price 1/4 the car!</p><p>The <code>quality</code> function determines the quality, so its what we need to change. How can we go about doing this?
+Play around below and see what you come up with.</p><pre><code class="klipse-cljs nohighlight">;; try to make the change yourself
+</code></pre><p>Because we injected the good-quality function, into the build function we can just create a new bag of options with
+a bad-quality function swapped for the good one. We can even give this a name if it helps:</p><pre><code class="klipse-cljs nohighlight">(defn bad-quality [] "shitty")
+
+(def cheap-model-one {:build-body build-model-one-body :add-wheels add-wheels :quality bad-quality})
+</code></pre><p>Now we can build or bad car as easily as calling the build function with our new collection of functions:</p><pre><code class="klipse-cljs nohighlight">(build-car {:model "v1" :wheels "g7s" :body "gold" :fns cheap-model-one})
+</code></pre><p>We said earlier that the Abstract Factory Pattern was about letting the client choose
+different functions depending on the data without having to know about concrete implementation
+of those functions. We already satisfied this with our multimethod, but we didn't show it happening.
+Lets fix that by adding a requirement for a new model "v2"</p><pre><code class="klipse-cljs nohighlight">(defmethod build-car "v2"
+  [{:keys [wheels body fns] :as order}]
+  (str "building a " ((:quality fns)) " model 2 car its way better then a model 1"))
+</code></pre><p>Now we need a new bag of functions to build our model v2. Luckly we can re-use some of the ones we already built!</p><pre><code class="klipse-cljs nohighlight">(defn build-model-two-body [])
+(def fancy-model-two {:build-body build-model-two-body :add-wheels add-wheels :quality good-quality})
+
+(build-car {:model "v2" :wheels "g7s" :body "gold" :fns fancy-model-two})
+</code></pre><p>Finally, let's say we don't want to let the client worry about the build fns <code>build-model-x</code>. We could handle
+this any number of ways. For instance, we just dispatch to a function that already has the functions contained inside it.
+<i>We append an x on the function name just so our namespace doesn't get polluted.</i></p><pre><code class="klipse-cljs nohighlight">(defmulti build-car-x (fn [{:keys [model]}] model))
+
+(defmethod build-car-x "v2"
+  [{:keys [wheels body] :as order}]
+  (let [fns fancy-model-one]
+    (str "building a " ((:quality fns)) " model 2x car its way better then a model 1")))
+
+(build-car-x {:model "v2" :wheels "g7s" :body "gold"})
+</code></pre><p>And we have done everything the Abstract pattern set out to achieve. Or so it seems,
+lets check what the GoF pattern lists as Consequences to be sure.</p><p>###Consequences:</p><blockquote><p>It isolates concrete classes. The Abstract Factory pattern helps you control
+the classes of objects that an application creates. Because a factory
+encapsulates the responsibility and the process of creating product objects,
+it isolates clients from implementation classes. Clients manipulate instances
+through their abstract interfaces. Product class names are isolated in the
+implementation of the concrete factory; they do not appear in client code.</p></blockquote><p>We isolated with our multimethod. A multimethod can dispatch via a function instead of just data, so its more flexible. If
+anything is "better" in software its the right kind of flexability, which this is.</p><blockquote><p>It makes exchanging product families easy. The class of a concrete factory
+appears only once in an application—that is, where it’s instantiated. This
+makes it easy to change the concrete factory an application uses. It can use
+different product configurations simply by changing the concrete factory.
+Because an abstract factory creates a complete family of products, the whole
+product family changes at once. In our user interface example, we can switch
+from Motif widgets to Presentation Manager widgets simply by switching the
+corresponding factory objects and recreating the interface.</p></blockquote><p>We switch to which version of multimethod we dispatch to by changing the data we pass to the multimethod (v1 -&gt; v2).
+I would say this is more powerful as now were capturing that information in data, rather then code. For example,
+we could potential intercept the call and change it.</p><blockquote><p>It promotes consistency among products. When product objects in a family are
+designed to work together, it’s important that an application use objects
+from only one family at a time. Abstract Factory makes this easy to enforce.</p></blockquote><p>Our interface hides, but doesn't really enforce unless we couple the functions to the
+disported function. Was the keys of our functions e.g <code>cheap-model-one</code>  enough
+to enforce anything? I would say no, if anything we congregated ourselves on open ended it was.
+I think we could gain more enforcement via protocals, required parameters and an <a href="https://youtu.be/kP8wImz-x4w?t=14m52s">information model</a>.
+But honestly, without a specific use case, i think its impossible to implement enforcement. For example,
+if there is some state we need to guard, then that would be better left to <a href="https://clojuredocs.org/clojure.core/set-validator!">Validators</a>
+which won't allow the inconstant state to exist explicitly.</p><blockquote><p>Supporting new kinds of products is difficult. Extending abstract factories
+to produce new kinds of Products isn’t easy. That’s because the
+AbstractFactory interface fixes the set of products that can be created.
+Supporting new kinds of products requires extending the factory interface,
+which involves changing the AbstractFactory class and all of its subclasses.
+We discuss one solution to this problem in the Implementation section.</p></blockquote><p>Here is the big win for Clojure. By leveraging first class functions we were
+able to pass -in- functionality and so easily produce  new kinds of cars. Java
+supports first class functions now, so maybe that would change how the authors
+would have implemented this and many other patterns.</p><p>##Summery</p><p>The Abstract Factory Pattern is about polymorphic dispatch to a group of related functions. It's
+also about enforcing how those related functions behave though.
+In Clojure have a number of ways we can group functions together depending on the use case. Without a specific
+example its hard to say which would be best. We can enforce behavior but I would need a specific example
+to know how best to do that, so we ignored it and assumed a more open system was better.</p><p>Some <a href="http://mishadoff.com/blog/clojure-design-patterns/#abstract_factory">would argue</a> we could have satisfied this
+pattern with just <code>partial</code>. However, this would be misleading. I think the factory pattern is
+applicable in clojure, but it's either trivialized by use of polymorphic dispatch and dependency injection
+or realized in full but only rarely, like when defining a <a href="http://blog.wagjo.com/factory.html">new data structure</a>.</p><p>As we have seen in previous patterns, the principles the pattern promotes remain intact by the implementation is supplied
+by Clojures approach.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Software">Software</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+    <a href="/tags-output/Design%20Pattern">Design Pattern</a>
+    
+    <a href="/tags-output/Java">Java</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2017-4-13-chain-of-responsibility">&laquo; Chain of Responsibility</a>
+        
+        
+        <a class="right button" href="/posts-output/2017-4-11-builder-pattern">Builder Pattern &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2017-4-12-abstract-factory-pattern";
+            this.page.identifier = "Abstract Factory Pattern";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script> 
+
+</body>
+</html>

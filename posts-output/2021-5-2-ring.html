@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"><![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"><![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"><![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <!-- Website Template designed by www.downloadwebsitetemplates.co.uk -->
+    <!-- Modified to fit Cryogen.-->
+    <meta charset="UTF-8">
+    <title>The Artificery: A (poorly) animated introduction to Clojure&#39;s HTTP server library Ring</title>
+    
+<meta name="keywords" content="Application,Creational,Spacemacs,Software,tutorial,AWS,Structural,Ring,Web Development,cider,Clojure,CSS,datalog,deps,Web,shadow-cljs,datomic,Behavrioral,Datomic-Cloud,Design Pattern,Java,webapplications,Behavioral,Database,Datomic,Emacs">
+
+<meta name="description" content="Ring helps your web server deliver cat pictures. end of story. Ok, well maybe there is more. Let&#39;s look at some code that sets up Jetty (our web server) that&#39;s adapted to used Ring. Keep in mind this means were juggling two concepts that work together. In this case, the Webserver program contains Ring:">
+
+<meta property="og:description" content="Ring helps your web server deliver cat pictures. end of story. Ok, well maybe there is more. Let&#39;s look at some code that sets up Jetty (our web server) that&#39;s adapted to used Ring. Keep in mind this means were juggling two concepts that work together. In this case, the Webserver program contains Ring:">
+
+<meta property="og:url" content="https://drewverlee.github.io/posts-output/2021-5-2-ring" />
+<meta property="og:title" content="A (poorly) animated introduction to Clojure&#39;s HTTP server library Ring" />
+<meta property="og:type" content="article" />
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57.png">
+    <link rel="shortcut icon" href="images/ico/favicon.png">
+    <!--[if IE]><![endif]-->
+    <link href="/css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="/css/menu.css" rel="stylesheet" type="text/css" />
+    <link href="/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="/css/typography.css" rel="stylesheet" type="text/css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow-night-eighties.min.css">
+    <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+<body>
+
+<div id="left">
+
+    <p id="logo">
+        <a title="The Artificery" href="/">
+            <img src="/img/red-bird.jpg" height="100px" width="100px" style="border-radius:80%;border: 2px solid black;margin:3px;display: block;">
+ 
+            <span class="text">Artificery</span>
+        </a>
+    </p>
+
+    <div id="menucont" class="bodycontainer clearfix">
+        <div class="menutitle">
+            <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
+        </div>
+        <ul class="menu">
+            <li ><a title="Home" href="/">Home</a></li>
+            <li ><a title="Archives" href="/archives">Archives</a></li>
+            
+            <li ><a title="Tags" href="/tags">Tags</a></li>
+            
+            
+            <li >
+                <a href="/pages-output/about">About</a>
+            </li>
+            
+            <li >
+                <a href="/pages-output/warrens">Warrens</a>
+            </li>
+            
+            <li><a title="RSS" href="/feed.xml">RSS</a></li>
+        </ul>
+    </div>
+
+    <div id="socialmedia" class="clearfix">
+        <ul>
+            <li><a title="GitHub" href="https://github.com/drewverlee" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="Stack Overflow" href="https://stackoverflow.com/users/1159050/drew-verlee" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
+            <li><a title="LinkedIn" href="www.linkedin.com/in/drewverlee" rel="external"><span class="fa fa-linkedin"></span></a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div id="right" class="clearfix">
+    
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <strong>May 2, 2021</strong>
+        
+    </div>
+    <h1>A (poorly) animated introduction to Clojure&#39;s HTTP server library Ring</h1>
+</div>
+<div>
+    
+    <img src="/img/ring-server.jpg" height="700px" width="700px" /><p>Ring helps your web server deliver cat pictures. <em>end of story</em>. Ok, well maybe there is more. Let's look at some code that sets up Jetty (our web server) that's adapted to used Ring. Keep in mind this means were juggling two concepts that work together. In this case, the Webserver program contains Ring:</p><img src="/img/serverring.png" height="400px" width="400px" /><p>Our first goal is to just display a html page on our local computer. To do that will need to</p><ol><li>run our server</li><li>use something to retrieve the information</li></ol><p>Running our server is a matter of importing that functionality e.g <a href="https://ring-clojure.github.io/ring/ring.adapter.jetty.html#var-run-jetty">run-jetty</a></p><p>from the ring library and calling it</p><pre><code class="clojure">;; import 
+(use '[ring.adapter.jetty :refer [run-jetty]])
+
+;; run-jetty takes two arguments
+(run-jetty
+  ;; a function which returns a response
+  (fn [_]
+    {:status 200
+     :body   "hello"})
+  ;; information about the server
+  {:port  3001})
+</code></pre><p>This is all you need for a local running server!  Evaling/running that code will give us a local running server, and we can visit <code>https://localhost:3001</code> to see the word <code>Hello</code> from our code above. That's really cool. Your now ready to start building production ready web applications!</p><p>well note quite, things get more complex from here. But how always depends on your goals. Let's cover some high level ideas that it's safe to assume you will need regardless. First off, both Rich Hickey and Kote agree that names are important and your likely going to run into these two early and often.</p><ol><li>Handler</li><li>Middleware</li></ol><p>Here is a characterization of the whole webserver process:</p><img src="/img/Ringpipe2.png" height="700px" width="700px" /><p>on reflection, middleware would be more like tools to help work on the request, rather then a stylish tie. But hopefully you get the idea.</p><h2 id="handler">Handler</h2><p>A <em>ring</em> <em>handler</em> <em>handles</em> <em>requests</em>. We already made one of these</p><pre><code class="clojure">;; run-jetty takes two arguments
+(run-jetty
+  ;; This anonymous function is a handler, were just ignoring the request
+  (fn [_]
+    {:status 200
+     :body   "hello"})
+  ;; information about the server
+  {:port  3001})
+</code></pre><h2 id="middleware">Middleware</h2><p>A <em>ring</em> <em>middleware</em> is in the middle... of the ware? Ok, I don't like this name personally. I like "handler-extender". Let's see what I mean, here is our "middleware" function:</p><pre><code class="clojure">
+(defn handler-&gt;handler-with-!-added-to-body
+  [handler]
+  (fn [request] (-&gt; request handler (update :body #(str % "!")))))
+</code></pre><p>That name is long, accurate, and less clear that directly reading the code. Unless that function is getting re-used, I think it should stay anonymous. Like the name implies it takes a handler and returns a handler. That's what middleware does. Here is it in action, reading from the inside out:</p><pre><code class="clojure">;; 2. that handler is called on the request
+(
+;; 1. our middleware takes our handler and produces a new handlers
+(handler-&gt;handler-with-!-added-to-body
+   (fn [_]
+     {:status 200
+      :body   "hello"}))
+ {:uri "http://localhost"})
+</code></pre><p>That's about as simple as it gets, from there you should read the official <a href="https://github.com/ring-clojure/ring/wiki/Concepts">docs</a> on both these concepts and more, where they will elaborate on these concepts to deal with more complex situations, but hopefully this laid out the fundamentals in a quick and enjoyable way!</p><p>Thanks for reading,</p><h2 id="other-resources-on-ring">Other resources on Ring</h2><p>If you are new to Ring and need help setting up an environment here is a great <a href="https://dev.to/kelvinmai/introduction-to-clojure-ring-2eff">video</a> of how to do that with Calva (which looks great, but I use emacs). If you want to know more about how to handle HTTP requests and how to encode that process in ring middleware then I highly recommend this video on <a href="https://www.youtube.com/watch?v=JWa4NhjWNHQ">building restful web api</a>.</p><ul><li><a href="https://github.com/ring-clojure/ring/blob/master/SPEC">Offical Ring spec</a></li><li><a href="https://www.youtube.com/watch?v=JWa4NhjWNHQ">building restful web api</a></li><li><a href="https://dev.to/kelvinmai/introduction-to-clojure-ring-2eff">introduciton to clojure ring</a></li><li><a href="https://www.baeldung.com/clojure-ring">Using clojure ring</a></li><li><a href="https://purelyfunctional.tv/issues/purelyfunctional-tv-newsletter-425-specify-a-data-abstraction/">Purely Functional on Clojure Ring</a></li><li><a href="https://medium.com/swlh/building-a-rest-api-in-clojure-3a1e1ae096e">building a rest api in clojure</a></li></ul><h2 id="commentary-on-the-post">Commentary on the post</h2><p>The goal is to explain Clojure's <a href="https://github.com/ring-clojure/ring">Ring</a> library with as few words and as many pictures and code examples as possible, as to complementing existing documentation. Also as a way for me to start a discussion around ring and educate myself. In that vein, i'm going to ask questions myself.</p><p>"Kote" is from the fantasy series the KingKiller Chronicles.</p><h2 id="questions-i-had-while-writing">Questions I had while writing.</h2><ul><li>When we ran <code>run-jetty</code> why did we get a full html tree and not just text when we used our browser retrieve the information from the server?</li><li>In what way was jetty adapted for Ring?</li><li>Why does ring's wrap-reload take a var instead of the handler value.</li></ul><h2 id="hire-me">Hire me!</h2><p>It should be clear that I can support myself on my pure artistic talent (sarcasm alert). But in case you need someone to help your team with Clojure full stack webdevelopemt, I'm always looking for my next opportunity.</p>
+</div>
+
+<div id="post-tags">
+    <br/> 
+    <b>Tags: </b>
+    
+    <a href="/tags-output/Ring">Ring</a>
+    
+    <a href="/tags-output/Web%20Development">Web Development</a>
+    
+    <a href="/tags-output/Clojure">Clojure</a>
+    
+</div>
+
+<br/>
+
+    <div id="prev-next">
+        
+        <a class="button" href="/posts-output/2021-8-26-css-optimizations">&laquo; CSS: Optimizations and Organization</a>
+        
+        
+        <a class="right button" href="/posts-output/2020-8-17-uri-parameters-to-datalog">Considering alternatives to the CommonURLParameters Language &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "https://drewverlee.github.io/posts-output/2021-5-2-ring";
+            this.page.identifier = "A (poorly) animated introduction to Clojure&#39;s HTTP server library Ring";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//https-drewverlee-github-io.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+<hr/>
+<div id="footercont" class="clearfix">Copyright &copy; 2024 Drew Verlee
+    <p>Powered by <a href="http://cryogenweb.org">Cryogen</a> | Free Website Template by <a title="free website templates" href="http://www.downloadwebsitetemplates.co.uk" rel="external">Download Website Templates</a></p>
+
+</div>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/js/scripts.js" type="application/javascript"></script>
+ <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+<script>
+window.klipse_settings = {
+  "selector" : ".klipse-cljs",
+  "selector_reagent" : ".klipse-reagent",
+  "codemirror_options_out" : {
+    "lineNumbers" : false
+  }
+};
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script> 
+
+</body>
+</html>
